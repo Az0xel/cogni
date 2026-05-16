@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <title>Web3Safer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../components/ui/w3s-button.css" />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        height: 100%;
+        height: 100dvh;
+        background: #000;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100%;
+        min-height: 100dvh;
+        background: #000;
+        color: #fff;
+        overflow-x: hidden;
+      }
+
+      /* Full-viewport canvas host (homepage matrix sizing target) */
+      .lp-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      .lp-matrix {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        display: block;
+      }
+
+      .lp-stage {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        min-height: 100dvh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-inline: clamp(12px, 4vw, 32px);
+        padding-block: clamp(96px, 18vw, 120px) clamp(32px, 8vw, 48px);
+      }
+
+      .lp-logo-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .lp-logo {
+        width: 25vw;
+        max-width: min(560px, 92vw);
+        height: auto;
+        display: block;
+        object-fit: contain;
+        pointer-events: none;
+      }
+
+      /* Tablets (portrait + landscape typical band) */
+      @media (max-width: 960px) {
+        .lp-logo {
+          width: 30vw;
+          max-width: min(520px, 92vw);
+        }
+      }
+
+      /* Phone */
+      @media (max-width: 480px) {
+        .lp-logo {
+          width: 70vw;
+          max-width: 94vw;
+        }
+      }
+
+      /* V2 navbar CTA position + sizing (standalone, top-right) */
+      .lp-mail {
+        position: fixed;
+        top: calc(clamp(12px, 2.5vw, 20px) + env(safe-area-inset-top, 0px));
+        right: calc(clamp(14px, 4vw, 40px) + env(safe-area-inset-right, 0px));
+        z-index: 10;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .lp-mail .w3s-button {
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .lp-mail .w3s-button__inner {
+        padding: 0.4em 1em;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 480px) {
+        .lp-mail .w3s-button__inner {
+          padding: 0.4em 0.85em;
+          font-size: 0.82rem;
+        }
+      }
+
+      /* Mobile navbar copy swap pattern (narrow label fits small screens) */
+      .lp-mail__label--narrow {
+        display: none;
+      }
+
+      @media (max-width: 480px) {
+        .lp-mail__label--wide {
+          display: none;
+        }
+        .lp-mail__label--narrow {
+          display: inline-block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="lp-shell" aria-hidden="true">
+      <canvas id="matrix-rain" class="lp-matrix"></canvas>
+    </div>
+
+    <a
+      href="mailto:cognitronics@proton.me"
+      class="lp-mail w3s-navbar__cta-link"
+      aria-label="Email cognitronics@proton.me"
+    >
+      <span class="w3s-button">
+        <span class="w3s-button__inner">
+          <svg
+            class="w3s-button__icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"
+            ></path>
+          </svg>
+          <span class="w3s-button__text" aria-live="polite">
+            <span class="w3s-navbar__cta-label lp-mail__label--wide">Get in touch</span>
+            <span class="w3s-navbar__cta-label lp-mail__label--narrow">Email</span>
+          </span>
+        </span>
+      </span>
+    </a>
+
+    <main class="lp-stage">
+      <div class="lp-logo-wrap" id="lp-logo-hit">
+        <img class="lp-logo" src="logo.png" alt="" width="800" height="800" />
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var canvas = document.getElementById("matrix-rain");
+        var panel = canvas && canvas.parentElement;
+        if (!canvas || !panel) return;
+
+        var ctx = canvas.getContext("2d");
+        var fontSize = 10;
+        var chars = "0123456789ABCDEF".split("");
+        var colors = ["#7CF3BF", "#39D091", "#14784D", "#bab21c", "#dadada"];
+        var drops = [];
+
+        function resizeCanvas() {
+          canvas.width = panel.offsetWidth;
+          canvas.height = panel.offsetHeight;
+          var cols = Math.floor(canvas.width / fontSize);
+          drops = [];
+          for (var i = 0; i < cols; i++) {
+            drops[i] = Math.floor(Math.random() * canvas.height);
+          }
+          ctx.font = fontSize + "px monospace";
+        }
+
+        function rain() {
+          var logoBox = document.getElementById("lp-logo-hit");
+          var logoRectCanvas = null;
+          if (logoBox) {
+            var logoRect = logoBox.getBoundingClientRect();
+            var canvasRect = canvas.getBoundingClientRect();
+            logoRectCanvas = {
+              left: logoRect.left - canvasRect.left,
+              right: logoRect.right - canvasRect.left,
+              top: logoRect.top - canvasRect.top,
+              bottom: logoRect.bottom - canvasRect.top
+            };
+          }
+
+          ctx.fillStyle = "rgba(0, 0, 0, 0.03)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          for (var i = 0; i < drops.length; i++) {
+            var char = chars[Math.floor(Math.random() * chars.length)];
+            var color = colors[Math.floor(Math.random() * colors.length)];
+            var x = i * fontSize;
+            var y = drops[i] * fontSize;
+
+            if (
+              logoRectCanvas &&
+              x >= logoRectCanvas.left &&
+              x <= logoRectCanvas.right &&
+              y >= logoRectCanvas.top &&
+              y <= logoRectCanvas.bottom
+            ) {
+              ctx.globalAlpha = 0.15;
+            } else {
+              ctx.globalAlpha = 1;
+            }
+
+            ctx.fillStyle = color;
+            ctx.fillText(char, x, y);
+
+            if (Math.random() > 0.99) drops[i] = 0;
+            drops[i]++;
+          }
+
+          ctx.globalAlpha = 1;
+        }
+
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        setInterval(rain, 50);
+      })();
+    </script>
+  </body>
+</html>
