@@ -247,8 +247,9 @@
         align-items: stretch;
         justify-items: stretch;
         gap: clamp(0.5rem, 3cqi, 1.25rem);
-        width: 100%;
+        width: fit-content;
         max-width: 100%;
+        margin-inline: auto;
       }
 
       .lp-mail {
@@ -281,8 +282,8 @@
         justify-content: center;
         width: 100%;
         box-sizing: border-box;
-        gap: 0.65em;
-        padding: 0.62em 1.65em;
+        gap: 0.55em;
+        padding: 0.62em 1.12em;
         font-family: "Rajdhani", "Poppins", system-ui, sans-serif;
         /* Fallback without container queries: keyed to viewport; scales with lp-hero__container width (~50vw or 90vw portrait) */
         font-size: clamp(0.8rem, 2.95vw + 0.25rem, 1.125rem);
@@ -327,6 +328,20 @@
       @container lp-hero (min-width: 0) {
         .lp-mail .lp-mail__metal.w3s-button__inner {
           font-size: clamp(0.75rem, 5.6cqi + 0.45rem, 1.2rem);
+        }
+      }
+
+      /* Landscape phones: each CTA is ~half the hero — keep wide labels on one line */
+      @media (orientation: landscape) and (max-width: 932px) {
+        .lp-mail .w3s-button__text {
+          white-space: nowrap;
+        }
+
+        .lp-mail .lp-mail__metal.w3s-button__inner {
+          font-size: clamp(0.58rem, 4cqi + 0.28rem, 1rem);
+          padding: 0.52em 1.05em;
+          letter-spacing: 0.09em;
+          gap: 0.55em;
         }
       }
 
