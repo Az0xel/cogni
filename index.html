@@ -236,9 +236,19 @@
           object-position: center;
         }
 
-        .lp-mail {
+        .lp-cta-row {
           flex-shrink: 0;
         }
+      }
+
+      .lp-cta-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: stretch;
+        justify-items: stretch;
+        gap: clamp(0.5rem, 3cqi, 1.25rem);
+        width: 100%;
+        max-width: 100%;
       }
 
       .lp-mail {
@@ -247,6 +257,7 @@
         text-decoration: none;
         color: inherit;
         outline: none;
+        min-width: 0;
       }
 
       .lp-mail:focus-visible .lp-mail__metal {
@@ -259,15 +270,17 @@
 
       /* Minimal button shell (standalone page; upstream w3s-button.css optional) */
       .lp-mail .w3s-button {
-        display: inline-block;
-        vertical-align: top;
+        display: block;
+        width: 100%;
       }
 
       .lp-mail .lp-mail__metal.w3s-button__inner {
         position: relative;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
         gap: 0.65em;
         padding: 0.62em 1.65em;
         font-family: "Rajdhani", "Poppins", system-ui, sans-serif;
@@ -410,16 +423,16 @@
         z-index: 2;
       }
 
-      /* Mobile navbar copy swap pattern (narrow label fits small screens) */
-      .lp-mail__label--narrow {
+      /* Portrait phones: short labels; landscape keeps full copy */
+      .lp-cta__label--narrow {
         display: none;
       }
 
-      @media (max-width: 480px) {
-        .lp-mail__label--wide {
+      @media (max-width: 480px) and (orientation: portrait) {
+        .lp-cta__label--wide {
           display: none;
         }
-        .lp-mail__label--narrow {
+        .lp-cta__label--narrow {
           display: inline-block;
         }
       }
@@ -448,33 +461,64 @@
             <img class="lp-logo" src="logo.png" alt="" width="800" height="800" />
           </div>
 
-          <a
-            href="mailto:cognitronics@proton.me"
-            class="lp-mail w3s-navbar__cta-link"
-            aria-label="Email cognitronics@proton.me"
-          >
-            <span class="w3s-button">
-              <span class="w3s-button__inner lp-mail__metal">
-                <span class="lp-mail__sweep" aria-hidden="true"></span>
-                <svg
-                  class="w3s-button__icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M4 6.75 12 13l8-6.25M4.75 17.25h14.5A1.75 1.75 0 0 0 21 15.5V8.75A1.75 1.75 0 0 0 19.25 7H4.75A1.75 1.75 0 0 0 3 8.75v6.75A1.75 1.75 0 0 0 4.75 17.25Z"
-                  />
-                </svg>
-                <span class="w3s-button__text" aria-live="polite">
-                  <span class="w3s-navbar__cta-label lp-mail__label--wide">Get in touch</span>
-                  <span class="w3s-navbar__cta-label lp-mail__label--narrow">Email</span>
+          <div class="lp-cta-row">
+            <a
+              href="mailto:cognitronics@proton.me"
+              class="lp-mail w3s-navbar__cta-link"
+              aria-label="Email cognitronics@proton.me"
+            >
+              <span class="w3s-button">
+                <span class="w3s-button__inner lp-mail__metal">
+                  <span class="lp-mail__sweep" aria-hidden="true"></span>
+                  <svg
+                    class="w3s-button__icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 6.75 12 13l8-6.25M4.75 17.25h14.5A1.75 1.75 0 0 0 21 15.5V8.75A1.75 1.75 0 0 0 19.25 7H4.75A1.75 1.75 0 0 0 3 8.75v6.75A1.75 1.75 0 0 0 4.75 17.25Z"
+                    />
+                  </svg>
+                  <span class="w3s-button__text" aria-live="polite">
+                    <span class="w3s-navbar__cta-label lp-cta__label--wide">Get in touch</span>
+                    <span class="w3s-navbar__cta-label lp-cta__label--narrow">Email</span>
+                  </span>
                 </span>
               </span>
-            </span>
-          </a>
+            </a>
+            <a
+              href="https://medium.com/@cognitronics"
+              class="lp-mail w3s-navbar__cta-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Read more on Medium (opens in a new tab)"
+            >
+              <span class="w3s-button">
+                <span class="w3s-button__inner lp-mail__metal">
+                  <span class="lp-mail__sweep" aria-hidden="true"></span>
+                  <svg
+                    class="w3s-button__icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+                    />
+                  </svg>
+                  <span class="w3s-button__text">
+                    <span class="w3s-navbar__cta-label lp-cta__label--wide">Read more</span>
+                    <span class="w3s-navbar__cta-label lp-cta__label--narrow">Read</span>
+                  </span>
+                </span>
+              </span>
+            </a>
+          </div>
         </div>
       </div>
     </main>
