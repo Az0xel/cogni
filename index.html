@@ -243,13 +243,6 @@
 
         .lp-cta-cluster {
           flex-shrink: 0;
-          /* One cramped row avoids a second CTA band under the hero in no-scroll landscape */
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          grid-template-areas: "mail video read";
-        }
-
-        .lp-cta-slot--video {
-          justify-self: stretch;
         }
       }
 
@@ -283,6 +276,20 @@
       .lp-cta-slot--video {
         grid-area: video;
         justify-self: center;
+      }
+
+      /* Mobile/tablet-ish landscape (matches .lp-mail font tune-up below): one row, cognex centered */
+      @media (orientation: landscape) and (max-width: 932px) {
+        .lp-cta-cluster {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-areas: "mail video read";
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .lp-cta-slot--video {
+          justify-self: stretch;
+        }
       }
 
       .lp-mail {
