@@ -116,13 +116,18 @@
         position: relative;
         z-index: 2;
         min-height: 100vh;
+        min-height: 100svh;
         min-height: 100dvh;
         width: 100%;
+        box-sizing: border-box;
         display: flex;
         align-items: center;
         justify-content: center;
         padding-inline: clamp(12px, 4vw, 32px);
-        padding-block: clamp(96px, 18vw, 120px) clamp(32px, 8vw, 48px);
+        /* Symmetric vertical inset so flex centering matches true viewport center (asymmetric top/bottom was pulling the block down on desktop) */
+        --lp-stage-pad-block: clamp(32px, 8vw, 64px);
+        padding-block-start: calc(env(safe-area-inset-top, 0px) + var(--lp-stage-pad-block));
+        padding-block-end: calc(env(safe-area-inset-bottom, 0px) + var(--lp-stage-pad-block));
       }
 
       .lp-hero {
@@ -236,20 +241,48 @@
           object-position: center;
         }
 
-        .lp-cta-row {
+        .lp-cta-cluster {
           flex-shrink: 0;
+          /* One cramped row avoids a second CTA band under the hero in no-scroll landscape */
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-areas: "mail video read";
+        }
+
+        .lp-cta-slot--video {
+          justify-self: stretch;
         }
       }
 
-      .lp-cta-row {
+      /* Default: desktop + tablet + portrait phone — mail | read, video centered underneath */
+      .lp-cta-cluster {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, max-content));
+        grid-template-areas:
+          "mail read"
+          "video video";
         align-items: stretch;
         justify-items: stretch;
         gap: clamp(0.5rem, 3cqi, 1.25rem);
         width: fit-content;
         max-width: 100%;
         margin-inline: auto;
+      }
+
+      .lp-cta-slot {
+        min-width: 0;
+      }
+
+      .lp-cta-slot--mail {
+        grid-area: mail;
+      }
+
+      .lp-cta-slot--read {
+        grid-area: read;
+      }
+
+      .lp-cta-slot--video {
+        grid-area: video;
+        justify-self: center;
       }
 
       .lp-mail {
@@ -452,6 +485,21 @@
         }
       }
 
+      /* Video: full label on laptop / tablet; "cognex" on typical phones (incl. landscape) */
+      .lp-video__label--narrow {
+        display: none;
+      }
+
+      @media (max-width: 767px),
+        screen and (orientation: landscape) and (max-width: 932px) and (max-height: 740px) {
+        .lp-video__label--wide {
+          display: none;
+        }
+        .lp-video__label--narrow {
+          display: inline-block;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .lp-mail:hover .lp-mail__sweep,
         .lp-mail:focus-visible .lp-mail__sweep {
@@ -461,6 +509,169 @@
           opacity: 0.35;
           filter: blur(12px);
         }
+      }
+
+      /* ---------- Drive video modal ---------- */
+      button.lp-mail--btn {
+        appearance: none;
+        border: none;
+        cursor: pointer;
+        font: inherit;
+        padding: 0;
+        margin: 0;
+        background: none;
+      }
+
+      .lp-drive-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 10001;
+        isolation: isolate;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: max(16px, env(safe-area-inset-top))
+          max(16px, env(safe-area-inset-right))
+          max(16px, env(safe-area-inset-bottom))
+          max(16px, env(safe-area-inset-left));
+      }
+
+      .lp-drive-modal[hidden] {
+        display: none !important;
+      }
+
+      .lp-drive-modal__backdrop {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: rgba(0, 0, 0, 0.9);
+        cursor: pointer;
+      }
+
+      .lp-drive-modal__dialog {
+        position: relative;
+        z-index: 2;
+        isolation: isolate;
+        display: flex;
+        flex-direction: column;
+        width: min(60%, 1200px);
+        max-width: 100%;
+        max-height: min(92dvh, 92vh);
+        transform: translateZ(0);
+      }
+
+      .lp-drive-modal__close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+        display: grid;
+        place-items: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        margin: 0;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        background: rgba(40, 45, 48, 0.95);
+        color: rgba(237, 255, 246, 0.95);
+        cursor: pointer;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+        transform: translate(0, calc(-100% - 10px));
+      }
+
+      .lp-drive-modal__close:hover {
+        border-color: rgba(57, 208, 145, 0.45);
+      }
+
+      .lp-drive-modal__close svg {
+        width: 1.35rem;
+        height: 1.35rem;
+      }
+
+      .lp-drive-modal__close:focus-visible {
+        outline: 2px solid rgba(57, 208, 145, 0.65);
+        outline-offset: 2px;
+      }
+
+      .lp-drive-modal__frame-wrap {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        max-height: min(85dvh, 85vh);
+        background: #0a0a0b;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
+        transform: translate3d(0, 0, 0);
+        isolation: isolate;
+        backface-visibility: hidden;
+      }
+
+      /* Mobile: % tracks layout viewport — matches stable Drive embed compositing (Safari / Chrome) */
+      @media (max-width: 768px) {
+        .lp-drive-modal__dialog {
+          width: 96%;
+        }
+      }
+
+      /* Portrait phones: vertical cell for Drive (tablets at 768px stay 16:9) */
+      @media (max-width: 560px) and (orientation: portrait) {
+        .lp-drive-modal__frame-wrap {
+          aspect-ratio: 9 / 16;
+          max-height: min(82dvh, 82vh);
+        }
+      }
+
+      /*
+       * Landscape phone: height is the scarce axis. Old pattern was “almost full vw × clamped vh”
+       * → very wide, very short iframe → Drive scales UI wrong (huge controls, scrubber at top).
+       * Size from vmin (short edge ≈ height here) then derive width for 16:9.
+       */
+      @media (max-width: 768px) and (orientation: landscape) {
+        .lp-drive-modal__dialog {
+          width: min(94vw, calc(86vmin * 16 / 9));
+          max-height: min(92dvh, 92vh);
+        }
+
+        .lp-drive-modal__frame-wrap {
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          max-height: min(86vmin, 86dvh, calc(94vw * 9 / 16));
+        }
+      }
+
+      /*
+       * Pin X above the glass: fixed + very high z-index so it never sits under iframe / overlay bugs.
+       */
+      @media (max-width: 560px) and (orientation: portrait),
+        (orientation: landscape) and (max-height: 640px) {
+        .lp-drive-modal__close {
+          position: fixed;
+          top: max(10px, env(safe-area-inset-top));
+          right: max(10px, env(safe-area-inset-right));
+          z-index: 10002;
+          transform: none;
+        }
+
+        .lp-drive-modal__frame-wrap {
+          margin-top: 0;
+        }
+      }
+
+      .lp-drive-modal__frame {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        transform: translate3d(0, 0, 0);
+      }
+
+      body.lp-drive-modal--open {
+        overflow: hidden;
       }
     </style>
   </head>
@@ -476,10 +687,10 @@
             <img class="lp-logo" src="logo.png" alt="" width="800" height="800" />
           </div>
 
-          <div class="lp-cta-row">
+          <div class="lp-cta-cluster">
             <a
               href="mailto:cognitronics@proton.me"
-              class="lp-mail w3s-navbar__cta-link"
+              class="lp-mail lp-cta-slot lp-cta-slot--mail w3s-navbar__cta-link"
               aria-label="Email cognitronics@proton.me"
             >
               <span class="w3s-button">
@@ -506,7 +717,7 @@
             </a>
             <a
               href="https://medium.com/@cognitronics"
-              class="lp-mail w3s-navbar__cta-link"
+              class="lp-mail lp-cta-slot lp-cta-slot--read w3s-navbar__cta-link"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Read more on Medium (opens in a new tab)"
@@ -533,10 +744,72 @@
                 </span>
               </span>
             </a>
+            <button
+              type="button"
+              class="lp-mail lp-mail--btn lp-cta-slot lp-cta-slot--video"
+              aria-label="Open problem and solution video"
+              aria-haspopup="dialog"
+              id="lp-drive-open"
+            >
+              <span class="w3s-button">
+                <span class="w3s-button__inner lp-mail__metal">
+                  <span class="lp-mail__sweep" aria-hidden="true"></span>
+                  <svg
+                    class="w3s-button__icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0 1 18 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0 1 18 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 0 1 6 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5"
+                    />
+                  </svg>
+                  <span class="w3s-button__text">
+                    <span class="w3s-navbar__cta-label lp-video__label--wide">problem/solution</span>
+                    <span class="w3s-navbar__cta-label lp-video__label--narrow">cognex</span>
+                  </span>
+                </span>
+              </span>
+            </button>
           </div>
         </div>
       </div>
     </main>
+
+    <div id="lp-drive-modal" class="lp-drive-modal" hidden aria-hidden="true">
+      <div class="lp-drive-modal__backdrop" aria-hidden="true"></div>
+      <div
+        class="lp-drive-modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Problem / solution video"
+      >
+        <button type="button" class="lp-drive-modal__close" aria-label="Close video" id="lp-drive-close">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M18 6 6 18M6 6l12 12"
+            />
+          </svg>
+        </button>
+        <div class="lp-drive-modal__frame-wrap">
+          <iframe
+            id="lp-drive-iframe"
+            class="lp-drive-modal__frame"
+            title="Problem / solution video"
+            data-drive-src="https://drive.google.com/file/d/1ZvxcvsB6CVpXFWZEfYSdshtXPMTEKQTI/preview"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin"
+          ></iframe>
+        </div>
+      </div>
+    </div>
 
     <script>
       (function () {
@@ -582,6 +855,52 @@
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
         setInterval(rain, 50);
+      })();
+    </script>
+    <script>
+      (function () {
+        var modal = document.getElementById("lp-drive-modal");
+        var trigger = document.getElementById("lp-drive-open");
+        var closeBtn = document.getElementById("lp-drive-close");
+        var backdrop = modal && modal.querySelector(".lp-drive-modal__backdrop");
+        var iframe = document.getElementById("lp-drive-iframe");
+        var driveSrc = iframe && iframe.getAttribute("data-drive-src");
+        var lastFocus = null;
+
+        if (!modal || !trigger || !closeBtn || !backdrop || !iframe || !driveSrc) return;
+
+        function open() {
+          lastFocus = document.activeElement;
+          iframe.setAttribute("src", driveSrc);
+          modal.removeAttribute("hidden");
+          modal.setAttribute("aria-hidden", "false");
+          document.body.classList.add("lp-drive-modal--open");
+          closeBtn.focus();
+        }
+
+        function close() {
+          try {
+            if (document.fullscreenElement) document.exitFullscreen();
+          } catch (_e) {}
+
+          iframe.removeAttribute("src");
+          modal.setAttribute("hidden", "");
+          modal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("lp-drive-modal--open");
+          if (lastFocus && typeof lastFocus.focus === "function") {
+            lastFocus.focus();
+          }
+        }
+
+        trigger.addEventListener("click", open);
+        closeBtn.addEventListener("click", close);
+        backdrop.addEventListener("click", close);
+
+        document.addEventListener("keydown", function (ev) {
+          if (ev.key === "Escape" && !modal.hasAttribute("hidden")) {
+            close();
+          }
+        });
       })();
     </script>
   </body>
