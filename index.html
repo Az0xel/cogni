@@ -617,6 +617,14 @@
         border-radius: 6px;
       }
 
+      /*
+       * iPad/tablet Safari often treats programmatic .focus() as :focus-visible, drawing our outline on
+       * the full transparent tap target until focus moves (e.g. tap video). Real keyboard Tab still matches :focus-visible.
+       */
+      .lp-drive-modal__close:focus:not(:focus-visible) {
+        outline: none;
+      }
+
       .lp-drive-modal__frame-wrap {
         position: relative;
         z-index: 2;
@@ -953,7 +961,11 @@
           modal.removeAttribute("hidden");
           modal.setAttribute("aria-hidden", "false");
           document.body.classList.add("lp-drive-modal--open");
-          closeBtn.focus();
+          try {
+            closeBtn.focus({ focusVisible: false });
+          } catch (_f) {
+            closeBtn.focus();
+          }
           try {
             var p = video.play();
             if (p && typeof p.catch === "function") {
