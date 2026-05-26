@@ -567,26 +567,34 @@
         z-index: 10;
         display: grid;
         place-items: center;
+        /* ~44px min touch target (unchanged UX); SVG stays visually small centered */
         width: 2.75rem;
         height: 2.75rem;
+        min-width: 44px;
+        min-height: 44px;
         margin: 0;
         padding: 0;
-        border: 1px solid transparent;
+        border: 1px solid rgba(57, 208, 145, 0.35);
         border-radius: 8px;
-        background: rgba(40, 45, 48, 0.95);
-        color: rgba(237, 255, 246, 0.95);
+        background: rgba(12, 18, 20, 0.92);
+        color: #39d091;
         cursor: pointer;
         box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
         transform: translate(0, calc(-100% - 10px));
       }
 
       .lp-drive-modal__close:hover {
-        border-color: rgba(57, 208, 145, 0.45);
+        border-color: rgba(57, 208, 145, 0.65);
+        color: #5ee0a8;
       }
 
       .lp-drive-modal__close svg {
-        width: 1.35rem;
-        height: 1.35rem;
+        width: calc(1.35rem / 2);
+        height: calc(1.35rem / 2);
+      }
+
+      .lp-drive-modal__close svg path {
+        stroke: currentColor;
       }
 
       .lp-drive-modal__close:focus-visible {
@@ -616,7 +624,7 @@
         }
       }
 
-      /* Portrait phones: vertical cell for Drive (tablets at 768px stay 16:9) */
+      /* Portrait phones: vertical player slot (native <video> fills it with object-fit: contain) */
       @media (max-width: 560px) and (orientation: portrait) {
         .lp-drive-modal__frame-wrap {
           aspect-ratio: 9 / 16;
@@ -625,9 +633,8 @@
       }
 
       /*
-       * Landscape phone: height is the scarce axis. Old pattern was “almost full vw × clamped vh”
-       * → very wide, very short iframe → Drive scales UI wrong (huge controls, scrubber at top).
-       * Size from vmin (short edge ≈ height here) then derive width for 16:9.
+       * Landscape phone: scarce height — size from vmin then width for 16:9
+       * (avoids a wide+short box that makes native controls awkward).
        */
       @media (max-width: 768px) and (orientation: landscape) {
         .lp-drive-modal__dialog {
@@ -643,7 +650,7 @@
       }
 
       /*
-       * Pin X above the glass: fixed + very high z-index so it never sits under iframe / overlay bugs.
+       * Pin X above the glass: fixed + very high z-index so it clears the viewport / video chrome.
        */
       @media (max-width: 560px) and (orientation: portrait),
         (orientation: landscape) and (max-height: 640px) {
@@ -664,9 +671,12 @@
         position: absolute;
         inset: 0;
         z-index: 1;
+        display: block;
         width: 100%;
         height: 100%;
         border: 0;
+        background: #000;
+        object-fit: contain;
         transform: translate3d(0, 0, 0);
       }
 
@@ -798,15 +808,16 @@
           </svg>
         </button>
         <div class="lp-drive-modal__frame-wrap">
-          <iframe
-            id="lp-drive-iframe"
+          <video
+            id="lp-teaser-video"
             class="lp-drive-modal__frame"
             title="Problem / solution video"
-            data-drive-src="https://drive.google.com/file/d/1ZvxcvsB6CVpXFWZEfYSdshtXPMTEKQTI/preview"
-            allow="autoplay; fullscreen"
-            allowfullscreen
-            referrerpolicy="strict-origin-when-cross-origin"
-          ></iframe>
+            playsinline
+            webkit-playsinline
+            controlslist="nodownload"
+            preload="none"
+            data-teaser-src="/media/problem-solution.mp4"
+          ></video>
         </div>
       </div>
     </div>
@@ -863,19 +874,83 @@
         var trigger = document.getElementById("lp-drive-open");
         var closeBtn = document.getElementById("lp-drive-close");
         var backdrop = modal && modal.querySelector(".lp-drive-modal__backdrop");
-        var iframe = document.getElementById("lp-drive-iframe");
-        var driveSrc = iframe && iframe.getAttribute("data-drive-src");
+        var video = document.getElementById("lp-teaser-video");
+        var frameWrap = modal.querySelector(".lp-drive-modal__frame-wrap");
+        var teaserSrc = video && video.getAttribute("data-teaser-src");
         var lastFocus = null;
+        var hideControlsTimer = null;
+        var controlsHideDelayMs = 3000;
 
-        if (!modal || !trigger || !closeBtn || !backdrop || !iframe || !driveSrc) return;
+        if (!modal || !trigger || !closeBtn || !backdrop || !frameWrap || !video || !teaserSrc) return;
+
+        function clearControlsHideTimer() {
+          if (hideControlsTimer !== null) {
+            clearTimeout(hideControlsTimer);
+            hideControlsTimer = null;
+          }
+        }
+
+        function hideNativeControlsSoon() {
+          clearControlsHideTimer();
+          hideControlsTimer = setTimeout(function () {
+            hideControlsTimer = null;
+            if (!video.paused) {
+              video.controls = false;
+            }
+          }, controlsHideDelayMs);
+        }
+
+        function revealNativeControls() {
+          video.controls = true;
+          if (!video.paused) {
+            hideNativeControlsSoon();
+          }
+        }
+
+        function attachTeaserInteractions() {
+          frameWrap.addEventListener(
+            "click",
+            function (ev) {
+              if (ev.target === closeBtn || closeBtn.contains(ev.target)) return;
+              revealNativeControls();
+            },
+            { passive: true }
+          );
+
+          ["pointerdown", "touchstart"].forEach(function (evt) {
+            video.addEventListener(evt, revealNativeControls, { passive: true });
+          });
+
+          video.addEventListener("playing", function () {
+            hideNativeControlsSoon();
+          });
+          video.addEventListener("pause", function () {
+            clearControlsHideTimer();
+            video.controls = true;
+          });
+          video.addEventListener("ended", function () {
+            clearControlsHideTimer();
+            video.controls = true;
+          });
+        }
+
+        attachTeaserInteractions();
 
         function open() {
           lastFocus = document.activeElement;
-          iframe.setAttribute("src", driveSrc);
+          video.controls = true;
+          clearControlsHideTimer();
+          video.setAttribute("src", teaserSrc);
           modal.removeAttribute("hidden");
           modal.setAttribute("aria-hidden", "false");
           document.body.classList.add("lp-drive-modal--open");
           closeBtn.focus();
+          try {
+            var p = video.play();
+            if (p && typeof p.catch === "function") {
+              p.catch(function () {});
+            }
+          } catch (_e) {}
         }
 
         function close() {
@@ -883,7 +958,16 @@
             if (document.fullscreenElement) document.exitFullscreen();
           } catch (_e) {}
 
-          iframe.removeAttribute("src");
+          clearControlsHideTimer();
+          video.pause();
+          try {
+            video.currentTime = 0;
+          } catch (_e2) {}
+          video.controls = false;
+          video.removeAttribute("src");
+          try {
+            video.load();
+          } catch (_e3) {}
           modal.setAttribute("hidden", "");
           modal.setAttribute("aria-hidden", "true");
           document.body.classList.remove("lp-drive-modal--open");
