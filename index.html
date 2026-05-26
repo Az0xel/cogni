@@ -173,6 +173,13 @@
         }
       }
 
+      /* Horizontal mobile: wider rail than default 50vw so three CTAs breathe */
+      @media (orientation: landscape) and (max-width: 932px) {
+        .lp-hero__container {
+          --lp-hero-w: 70vw;
+        }
+      }
+
       /* Short landscape (phones ~≤932×500): fit stack + true vertical centre (symmetric slack top/bottom) */
       @media (orientation: landscape) and (max-height: 500px) and (max-width: 932px) {
         html {
