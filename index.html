@@ -560,37 +560,51 @@
         transform: translateZ(0);
       }
 
+      /*
+       * Close: invisible hit zone (transparent) sized for touch/pointer.
+       * Center of the zone sits exactly on the video frame's top-right corner (outside the picture box).
+       * Small visible chip wraps the X with 2px padding only on the chip.
+       */
       .lp-drive-modal__close {
         position: absolute;
         top: 0;
         right: 0;
-        z-index: 10;
+        z-index: 5;
+        margin: 0;
+        appearance: none;
+        border: none;
+        padding: 0;
+        width: max(44px, 2.875rem);
+        height: max(44px, 2.875rem);
+        cursor: pointer;
         display: grid;
         place-items: center;
-        /* ~44px min touch target (unchanged UX); SVG stays visually small centered */
-        width: 2.75rem;
-        height: 2.75rem;
-        min-width: 44px;
-        min-height: 44px;
-        margin: 0;
-        padding: 0;
-        border: 1px solid rgba(57, 208, 145, 0.35);
-        border-radius: 8px;
-        background: rgba(12, 18, 20, 0.92);
-        color: #39d091;
-        cursor: pointer;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
-        transform: translate(0, calc(-100% - 10px));
+        background: transparent;
+        box-shadow: none;
+        transform: translate(50%, -50%);
       }
 
-      .lp-drive-modal__close:hover {
-        border-color: rgba(57, 208, 145, 0.65);
+      .lp-drive-modal__close-chip {
+        display: grid;
+        place-items: center;
+        padding: 2px;
+        border-radius: 6px;
+        border: 1px solid rgba(57, 208, 145, 0.45);
+        background: rgba(12, 18, 20, 0.92);
+        color: #39d091;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      }
+
+      .lp-drive-modal__close:hover .lp-drive-modal__close-chip,
+      .lp-drive-modal__close:focus-visible .lp-drive-modal__close-chip {
+        border-color: rgba(57, 208, 145, 0.75);
         color: #5ee0a8;
       }
 
       .lp-drive-modal__close svg {
         width: calc(1.35rem / 2);
         height: calc(1.35rem / 2);
+        display: block;
       }
 
       .lp-drive-modal__close svg path {
@@ -600,6 +614,7 @@
       .lp-drive-modal__close:focus-visible {
         outline: 2px solid rgba(57, 208, 145, 0.65);
         outline-offset: 2px;
+        border-radius: 6px;
       }
 
       .lp-drive-modal__frame-wrap {
@@ -610,11 +625,19 @@
         max-height: min(85dvh, 85vh);
         background: #0a0a0b;
         border-radius: 12px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
         transform: translate3d(0, 0, 0);
         isolation: isolate;
         backface-visibility: hidden;
+      }
+
+      .lp-drive-modal__frame-clip {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        border-radius: inherit;
+        z-index: 1;
       }
 
       /* Mobile: % tracks layout viewport — matches stable Drive embed compositing (Safari / Chrome) */
@@ -646,24 +669,6 @@
           width: 100%;
           aspect-ratio: 16 / 9;
           max-height: min(86vmin, 86dvh, calc(94vw * 9 / 16));
-        }
-      }
-
-      /*
-       * Pin X above the glass: fixed + very high z-index so it clears the viewport / video chrome.
-       */
-      @media (max-width: 560px) and (orientation: portrait),
-        (orientation: landscape) and (max-height: 640px) {
-        .lp-drive-modal__close {
-          position: fixed;
-          top: max(10px, env(safe-area-inset-top));
-          right: max(10px, env(safe-area-inset-right));
-          z-index: 10002;
-          transform: none;
-        }
-
-        .lp-drive-modal__frame-wrap {
-          margin-top: 0;
         }
       }
 
@@ -796,28 +801,32 @@
         aria-modal="true"
         aria-label="Problem / solution video"
       >
-        <button type="button" class="lp-drive-modal__close" aria-label="Close video" id="lp-drive-close">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M18 6 6 18M6 6l12 12"
-            />
-          </svg>
-        </button>
         <div class="lp-drive-modal__frame-wrap">
-          <video
-            id="lp-teaser-video"
-            class="lp-drive-modal__frame"
-            title="Problem / solution video"
-            playsinline
-            webkit-playsinline
-            controlslist="nodownload"
-            preload="none"
-            data-teaser-src="/media/problem-solution.mp4"
-          ></video>
+          <div class="lp-drive-modal__frame-clip">
+            <video
+              id="lp-teaser-video"
+              class="lp-drive-modal__frame"
+              title="Problem / solution video"
+              playsinline
+              webkit-playsinline
+              controlslist="nodownload"
+              preload="none"
+              data-teaser-src="/media/problem-solution.mp4"
+            ></video>
+          </div>
+          <button type="button" class="lp-drive-modal__close" aria-label="Close video" id="lp-drive-close">
+            <span class="lp-drive-modal__close-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M18 6 6 18M6 6l12 12"
+                />
+              </svg>
+            </span>
+          </button>
         </div>
       </div>
     </div>
