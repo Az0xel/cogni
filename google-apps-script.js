@@ -102,9 +102,6 @@ function appendRow_(data) {
   const row = [
     data.timestamp || new Date().toISOString(),
     data.source || "",
-    respondent.name || "",
-    respondent.company || "",
-    respondent.email || "",
     statements.missing_training_signals || "",
     statements.embodiment_specific_bottleneck || "",
     statements.semantic_traces_improve_learning || "",
@@ -115,6 +112,9 @@ function appendRow_(data) {
     product.other_text || "",
     data.strongest_reason || "",
     data.comments || "",
+    respondent.name || "",
+    respondent.company || "",
+    respondent.email || "",
   ];
 
   sheet.appendRow(row);
@@ -127,12 +127,6 @@ function sendNotificationEmail_(data) {
 
   const lines = [
     "New thesis-validation feedback received.",
-    "",
-    "Respondent",
-    "--------",
-    "Name: " + (respondent.name || "(not provided)"),
-    "Company: " + (respondent.company || "(not provided)"),
-    "Email: " + (respondent.email || "(not provided)"),
     "",
     "Validation Statements",
     "-------------------",
@@ -155,6 +149,12 @@ function sendNotificationEmail_(data) {
     "Additional Comments",
     "-------------------",
     data.comments || "(none)",
+    "",
+    "Respondent",
+    "--------",
+    "Name: " + (respondent.name || "(not provided)"),
+    "Company: " + (respondent.company || "(not provided)"),
+    "Email: " + (respondent.email || "(not provided)"),
     "",
     "Timestamp: " + (data.timestamp || new Date().toISOString()),
     "Source: " + (data.source || ""),
