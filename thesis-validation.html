@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Technical Reality Check — Cognitronics</title>
+
+    <link rel="icon" href="16x16.png" sizes="16x16" type="image/png" />
+    <link rel="icon" href="32x32.png" sizes="32x32" type="image/png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,400;6..144,500&family=Rajdhani:wght@600&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html {
+        height: 100%;
+        background: #000;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100%;
+        min-height: 100dvh;
+        background: #000;
+        color: rgba(226, 232, 236, 0.92);
+        overflow-x: hidden;
+      }
+
+      .tv-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+      }
+
+      .tv-matrix {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        pointer-events: none;
+      }
+
+      .tv-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.7);
+        pointer-events: none;
+      }
+
+      .tv-page {
+        position: relative;
+        z-index: 2;
+        min-height: 100dvh;
+        min-height: 100svh;
+        padding: max(24px, env(safe-area-inset-top))
+          max(16px, env(safe-area-inset-right))
+          max(32px, env(safe-area-inset-bottom))
+          max(16px, env(safe-area-inset-left));
+        box-sizing: border-box;
+      }
+
+      .tv-page.tv-page--success {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .tv-page.tv-page--success .tv-memo {
+        width: min(900px, 100%);
+        flex-shrink: 0;
+      }
+
+      .tv-page.tv-page--success .tv-memo__logo-wrap {
+        margin-bottom: clamp(0.85rem, 2.5vh, 1.35rem);
+      }
+
+      .tv-page.tv-page--success .tv-success {
+        padding-bottom: 0;
+      }
+
+      .tv-memo {
+        width: min(900px, 100%);
+        margin-inline: auto;
+        --tv-content-rail: min(680px, 100%);
+      }
+
+      .tv-memo__header {
+        margin-bottom: calc(2.25rem / 3);
+        padding-bottom: 1.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+      }
+
+      .tv-memo__logo-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: clamp(calc(1.25rem / 3), calc(4vw / 3), calc(2rem / 3));
+      }
+
+      .tv-memo__logo {
+        display: block;
+        width: min(420px, 88%);
+        height: auto;
+        object-fit: contain;
+      }
+
+      .tv-memo__title-block {
+        margin: 0 0 clamp(1.5rem, 4vw, 2rem);
+      }
+
+      .tv-memo__title-line {
+        margin: 0;
+        font-family: "Rajdhani", "Poppins", system-ui, sans-serif;
+        font-size: clamp(0.95rem, 2.6vw + 0.35rem, 1.125rem);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        line-height: 1.4;
+        text-transform: uppercase;
+      }
+
+      .tv-memo__title-line--lead {
+        background: linear-gradient(180deg, #ffffff 0%, #0f7173 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+
+      .tv-memo__title-line--sub {
+        background: linear-gradient(180deg, #0f7173 0%, #ffffff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+      }
+
+      .tv-memo__title-line + .tv-memo__title-line {
+        margin-top: 0.35rem;
+      }
+
+      /* Portrait phones: 3-line title — line 3 reuses --lead gradient (matches line 1) */
+      .tv-memo__title-sub--portrait {
+        display: none;
+      }
+
+      @media (max-width: 640px) and (orientation: portrait) {
+        .tv-memo__title-sub--full {
+          display: none;
+        }
+
+        .tv-memo__title-sub--portrait {
+          display: block;
+        }
+      }
+
+      .tv-memo__subtitle {
+        margin: 0.85rem 0 0;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: clamp(0.95rem, 1.2vw + 0.75rem, 1.05rem);
+        font-weight: 400;
+        font-style: italic;
+        line-height: 1.55;
+        color: rgba(180, 200, 205, 0.88);
+      }
+
+      .tv-memo__intro-box {
+        margin-inline: auto;
+        max-width: var(--tv-content-rail);
+        padding: clamp(1.1rem, 3vw, 1.5rem) clamp(1.15rem, 3.5vw, 1.75rem);
+        text-align: justify;
+        text-justify: inter-word;
+        font-family: "Google Sans Flex", "Google Sans", system-ui, sans-serif;
+        font-size: clamp(0.96rem, 0.35vw + 0.9rem, 1.05rem);
+        font-weight: 400;
+        line-height: 1.72;
+        color: rgba(210, 220, 224, 0.9);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid #39d091;
+        border-radius: 4px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      .tv-memo__intro-box p {
+        margin: 0 0 1rem;
+      }
+
+      .tv-memo__intro-box p:last-child {
+        margin-bottom: 0;
+      }
+
+      .tv-memo__intro-box .tv-memo__intro-center {
+        text-align: center;
+      }
+
+      .tv-section {
+        margin-bottom: 2.5rem;
+      }
+
+      .tv-section__title {
+        margin: 0 0 1.25rem;
+        text-align: center;
+        font-family: "Rajdhani", "Poppins", system-ui, sans-serif;
+        font-size: clamp(0.95rem, 2.6vw + 0.35rem, 1.125rem);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        line-height: 1.4;
+        text-transform: uppercase;
+        color: #39d091;
+      }
+
+      .tv-section__hint {
+        margin: -0.75rem 0 1.25rem;
+        text-align: center;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: 0.88rem;
+        font-style: italic;
+        line-height: 1.5;
+        color: rgba(160, 175, 180, 0.75);
+      }
+
+      .tv-section--product .tv-options {
+        justify-content: center;
+      }
+
+      .tv-section--product .tv-other-wrap {
+        max-width: var(--tv-content-rail);
+        margin-inline: auto;
+      }
+
+      .tv-section--feedback .tv-label,
+      .tv-section--comments .tv-label {
+        max-width: var(--tv-content-rail);
+        margin-inline: auto;
+        text-align: center;
+      }
+
+      .tv-textarea--rail {
+        display: block;
+        max-width: var(--tv-content-rail);
+        margin-inline: auto;
+      }
+
+      .tv-section--statements .tv-statement {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: clamp(0.75rem, 3vw, 1.25rem);
+        margin: 0 auto 0.65rem;
+        padding: clamp(0.85rem, 2.5vw, 1.1rem) clamp(1rem, 3vw, 1.25rem);
+        max-width: var(--tv-content-rail);
+        min-width: 0;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .tv-section--statements .tv-statement__text {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0;
+      }
+
+      .tv-section--statements .tv-statement:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .tv-statement {
+        margin: 0;
+        padding: 0;
+        border: none;
+      }
+
+      .tv-statement__text {
+        margin: 0;
+        font-family: "Google Sans Flex", "Google Sans", system-ui, sans-serif;
+        font-size: 0.98rem;
+        line-height: 1.6;
+        color: rgba(226, 232, 236, 0.94);
+        text-align: left;
+      }
+
+      .tv-section--statements .tv-statement .tv-options {
+        flex: 0 0 auto;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
+      }
+
+      .tv-statement__num {
+        color: rgba(124, 243, 191, 0.7);
+        font-variant-numeric: tabular-nums;
+        margin-right: 0.35rem;
+      }
+
+      .tv-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+      }
+
+      .tv-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: 0.88rem;
+        color: rgba(200, 210, 214, 0.88);
+        user-select: none;
+      }
+
+      .tv-option input {
+        accent-color: #39d091;
+        width: 1rem;
+        height: 1rem;
+        margin: 0;
+        flex-shrink: 0;
+      }
+
+      .tv-field {
+        margin-bottom: 1rem;
+      }
+
+      .tv-field:last-child {
+        margin-bottom: 0;
+      }
+
+      .tv-label {
+        display: block;
+        margin-bottom: 0.45rem;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        color: rgba(180, 195, 200, 0.85);
+      }
+
+      .tv-input,
+      .tv-textarea {
+        display: block;
+        width: 100%;
+        padding: 0.72rem 0.85rem;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: rgba(235, 240, 242, 0.95);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 4px;
+        transition:
+          border-color 0.2s ease,
+          background 0.2s ease;
+      }
+
+      .tv-textarea {
+        min-height: 7rem;
+        resize: vertical;
+      }
+
+      .tv-input:focus,
+      .tv-textarea:focus {
+        outline: none;
+        border-color: rgba(57, 208, 145, 0.45);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .tv-section--feedback .tv-textarea,
+      .tv-section--comments .tv-textarea,
+      .tv-respondent-grid .tv-input {
+        border: 1px solid #39d091;
+      }
+
+      .tv-section--feedback .tv-textarea:focus,
+      .tv-section--comments .tv-textarea:focus,
+      .tv-respondent-grid .tv-input:focus {
+        border-color: #39d091;
+      }
+
+      .tv-other-wrap {
+        margin-top: 0.85rem;
+        display: none;
+      }
+
+      .tv-other-wrap.is-visible {
+        display: block;
+      }
+
+      .tv-respondent-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        max-width: var(--tv-content-rail);
+        margin-inline: auto;
+      }
+
+      .tv-respondent-grid .tv-field--email {
+        grid-column: 1 / -1;
+      }
+
+      .tv-respondent-grid .tv-label {
+        text-align: center;
+      }
+
+      @media (max-width: 640px) {
+        .tv-respondent-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tv-options {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.55rem;
+        }
+
+        .tv-section--statements .tv-statement {
+          flex-wrap: wrap;
+        }
+
+        .tv-section--statements .tv-statement .tv-options {
+          flex: 1 1 100%;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          align-items: center;
+        }
+      }
+
+      /* Product Signal: left-aligned checklist on portrait phones only */
+      @media (max-width: 640px) and (orientation: portrait) {
+        .tv-section--product .tv-options {
+          justify-content: flex-start;
+          align-items: flex-start;
+        }
+      }
+
+      .tv-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .tv-error {
+        width: 100%;
+        max-width: var(--tv-content-rail);
+      }
+
+      .tv-submit {
+        appearance: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        background: none;
+        font: inherit;
+        color: inherit;
+        width: auto;
+        max-width: 22rem;
+      }
+
+      .tv-submit:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+      }
+
+      .tv-submit__inner {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.62em 1.12em;
+        font-family: "Rajdhani", "Poppins", system-ui, sans-serif;
+        font-size: clamp(0.8rem, 2.95vw + 0.25rem, 1.125rem);
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(226, 232, 236, 0.96);
+        text-shadow:
+          0 0 1px rgba(0, 0, 0, 0.95),
+          0 1px 0 rgba(255, 255, 255, 0.12);
+        background: linear-gradient(
+          178deg,
+          #4f5c62 0%,
+          #2b3236 38%,
+          #121618 52%,
+          #1f2629 74%,
+          #343d42 100%
+        );
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.2),
+          inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+          0 0 0 1px rgba(0, 0, 0, 0.85),
+          0 12px 32px rgba(0, 0, 0, 0.4);
+        clip-path: polygon(
+          11px 0,
+          calc(100% - 11px) 0,
+          100% 11px,
+          100% calc(100% - 11px),
+          calc(100% - 11px) 100%,
+          11px 100%,
+          0 calc(100% - 11px),
+          0 11px
+        );
+        overflow: hidden;
+        transition:
+          border-color 0.35s ease,
+          box-shadow 0.35s ease,
+          color 0.35s ease;
+      }
+
+      .tv-submit__inner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.35;
+        background: linear-gradient(125deg, transparent 42%, rgba(255, 255, 255, 0.12) 50%, transparent 58%);
+        mix-blend-mode: overlay;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .tv-submit__sweep {
+        pointer-events: none;
+        position: absolute;
+        top: -25%;
+        left: -120%;
+        width: 80%;
+        height: 150%;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          transparent 38%,
+          rgba(57, 208, 145, 0.05) 45%,
+          rgba(57, 208, 145, 0.55) 50%,
+          rgba(122, 243, 191, 0.42) 52%,
+          rgba(57, 208, 145, 0.12) 60%,
+          transparent 72%,
+          transparent 100%
+        );
+        filter: blur(6px);
+        transform: skewX(-16deg);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1;
+      }
+
+      .tv-submit__label {
+        position: relative;
+        z-index: 2;
+      }
+
+      .tv-submit:not(:disabled):hover .tv-submit__sweep,
+      .tv-submit:not(:disabled):focus-visible .tv-submit__sweep {
+        opacity: 1;
+        animation: tv-submit-sweep 0.75s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }
+
+      @keyframes tv-submit-sweep {
+        from {
+          transform: skewX(-16deg) translateX(0%);
+        }
+        to {
+          transform: skewX(-16deg) translateX(310%);
+        }
+      }
+
+      .tv-submit:not(:hover):not(:focus-visible) .tv-submit__sweep {
+        animation: none;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tv-submit:not(:disabled):hover .tv-submit__sweep,
+        .tv-submit:not(:disabled):focus-visible .tv-submit__sweep {
+          animation: none;
+          left: -20%;
+          width: 140%;
+          opacity: 0.35;
+          filter: blur(12px);
+        }
+      }
+
+      .tv-submit:not(:disabled):hover .tv-submit__inner,
+      .tv-submit:not(:disabled):focus-visible .tv-submit__inner {
+        border-color: rgba(57, 208, 145, 0.35);
+        color: rgba(237, 255, 246, 0.98);
+        box-shadow:
+          inset 0 1px 0 rgba(124, 243, 191, 0.18),
+          inset 0 -2px 0 rgba(0, 0, 0, 0.45),
+          0 0 0 1px rgba(0, 0, 0, 0.92),
+          0 12px 40px rgba(0, 0, 0, 0.5),
+          0 0 24px rgba(57, 208, 145, 0.12);
+      }
+
+      .tv-submit:focus-visible {
+        outline: none;
+      }
+
+      .tv-submit:focus-visible .tv-submit__inner {
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+          0 0 0 2px rgba(57, 208, 145, 0.45),
+          0 8px 28px rgba(0, 0, 0, 0.45);
+      }
+
+      .tv-error {
+        margin: 0 0 1rem;
+        padding: 0.75rem 0.9rem;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #ffb4b4;
+        background: rgba(180, 40, 40, 0.15);
+        border: 1px solid rgba(255, 120, 120, 0.25);
+        border-radius: 4px;
+        display: none;
+      }
+
+      .tv-error.is-visible {
+        display: block;
+      }
+
+      .tv-success {
+        display: none;
+        max-width: var(--tv-content-rail);
+        margin-inline: auto;
+        padding: 0 0 2rem;
+        text-align: center;
+      }
+
+      .tv-success.is-visible {
+        display: block;
+      }
+
+      .tv-success__title {
+        margin: 0 0 0.85rem;
+        font-family: "Rajdhani", system-ui, sans-serif;
+        font-size: clamp(0.95rem, 2.6vw + 0.35rem, 1.125rem);
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #39d091;
+      }
+
+      .tv-success__text {
+        margin: 0;
+        font-family: "Roboto", system-ui, sans-serif;
+        font-size: clamp(0.95rem, 1.2vw + 0.75rem, 1.05rem);
+        font-style: italic;
+        line-height: 1.65;
+        color: rgba(180, 200, 205, 0.88);
+      }
+
+      .tv-success__seal-wrap {
+        display: flex;
+        justify-content: center;
+        margin-top: clamp(1.25rem, 4vw, 2rem);
+        opacity: 0;
+        transition: opacity 0.45s ease;
+      }
+
+      .tv-success__seal-wrap.is-visible {
+        opacity: 1;
+      }
+
+      .tv-success__seal {
+        display: block;
+        /* Base 200px / 42vw — desktop & tablet: −30% */
+        width: min(calc(200px * 0.7), calc(42vw * 0.7));
+        height: auto;
+        object-fit: contain;
+        pointer-events: none;
+      }
+
+      @media (max-width: 640px) {
+        .tv-success__seal {
+          /* Mobile: −40% */
+          width: min(calc(200px * 0.6), calc(42vw * 0.6));
+        }
+      }
+
+      /* Success thumb — desktop default 20vw; slides up from below viewport */
+      .tv-success__thumb {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        z-index: 3;
+        display: block;
+        width: 20vw;
+        height: auto;
+        object-fit: contain;
+        object-position: left bottom;
+        pointer-events: none;
+        transform: translateY(100%);
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.45s ease;
+      }
+
+      .tv-success__thumb.is-visible {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Tablet vertical */
+      @media (orientation: portrait) and (min-width: 641px) and (max-width: 1024px) {
+        .tv-success__thumb {
+          width: 30vw;
+        }
+      }
+
+      /* Tablet horizontal (taller tablets; short phone landscape uses rule below) */
+      @media (orientation: landscape) and (min-width: 641px) and (max-width: 1024px) and (min-height: 501px) {
+        .tv-success__thumb {
+          width: 25vw;
+        }
+      }
+
+      /* Mobile vertical */
+      @media (max-width: 640px) and (orientation: portrait) {
+        .tv-success__thumb {
+          width: 30vw;
+        }
+      }
+
+      /* Mobile horizontal */
+      @media (orientation: landscape) and (max-width: 932px) and (max-height: 500px) {
+        .tv-success__thumb {
+          width: 20vw;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tv-success__seal-wrap {
+          transition: none;
+        }
+
+        .tv-success__thumb {
+          transition: none;
+          transform: none;
+        }
+      }
+
+      .tv-form.is-hidden,
+      .tv-memo__header.is-hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tv-shell" aria-hidden="true">
+      <canvas id="tv-matrix" class="tv-matrix"></canvas>
+    </div>
+    <div class="tv-overlay" aria-hidden="true"></div>
+
+    <main class="tv-page" id="tv-page">
+      <article class="tv-memo">
+        <div class="tv-memo__logo-wrap">
+          <img
+            class="tv-memo__logo"
+            src="media/coglog.png"
+            alt="Cognitronics"
+            width="840"
+            height="200"
+          />
+        </div>
+
+        <header id="tv-memo-intro" class="tv-memo__header">
+          <div class="tv-memo__title-block">
+            <h1 class="tv-memo__title-line tv-memo__title-line--lead">Technical Reality Check:</h1>
+            <p class="tv-memo__title-line tv-memo__title-line--sub tv-memo__title-sub--full">
+              Capture-Time Semantic Supervision for Humanoid Training
+            </p>
+            <p class="tv-memo__title-line tv-memo__title-line--sub tv-memo__title-sub--portrait">
+              Capture-Time Semantic Supervision for
+            </p>
+            <p class="tv-memo__title-line tv-memo__title-line--lead tv-memo__title-sub--portrait">
+              Humanoid Training
+            </p>
+            <p class="tv-memo__subtitle">
+              A short validation memo for robotics operators, founders, and embodied AI engineers.
+            </p>
+          </div>
+
+          <div class="tv-memo__intro-box">
+            <p>
+              We're exploring whether humanoid training pipelines are missing a data layer: capture-time
+              semantic supervision.
+            </p>
+            <p>
+              The thesis is that raw teleoperation and video data may not be sufficient. Humanoids may
+              benefit from task traces that capture scene structure, affordances, intent,
+              contact/proprioception, and embodiment-specific kinematics at acquisition time rather
+              than through post-hoc labeling.
+            </p>
+            <p>
+              If correct, this could transform teleoperation sessions into semantically structured
+              embodied datasets, then use those captures to seed simulation amplification and policy
+              training.
+            </p>
+            <p class="tv-memo__intro-center">If incorrect, we want to understand why.</p>
+          </div>
+        </header>
+
+        <div id="tv-success" class="tv-success" hidden role="status">
+          <h2 class="tv-success__title">Feedback received</h2>
+          <p
+            class="tv-success__text"
+            id="tv-success-thank"
+            data-full-text="Thank you. Your technical feedback has been sent. If you shared contact details, we may follow up with clarifying questions."
+          ></p>
+          <div id="tv-success-seal-wrap" class="tv-success__seal-wrap">
+            <img
+              class="tv-success__seal"
+              src="media/apostille.png"
+              alt=""
+              width="800"
+              height="800"
+            />
+          </div>
+        </div>
+
+        <form id="tv-form" class="tv-form" novalidate>
+          <section class="tv-section tv-section--statements" aria-labelledby="tv-statements-heading">
+            <h2 id="tv-statements-heading" class="tv-section__title">Validation Statements</h2>
+            <p class="tv-section__hint">
+              For each statement, select one response. Answer at least one statement, or complete the
+              critical feedback field below.
+            </p>
+
+            <div class="tv-statement" role="group" aria-labelledby="tv-stmt-1">
+              <p class="tv-statement__text" id="tv-stmt-1">
+                <span class="tv-statement__num">1.</span>
+                Current humanoid datasets are missing useful training signals beyond video, trajectories,
+                and robot state.
+              </p>
+              <div class="tv-options">
+                <label class="tv-option"
+                  ><input type="radio" name="missing_training_signals" value="Agree" /> Agree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="missing_training_signals" value="Disagree" /> Disagree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="missing_training_signals" value="Unsure" /> Unsure</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="missing_training_signals" value="Irrelevant" />
+                  Irrelevant</label
+                >
+              </div>
+            </div>
+
+            <div class="tv-statement" role="group" aria-labelledby="tv-stmt-2">
+              <p class="tv-statement__text" id="tv-stmt-2">
+                <span class="tv-statement__num">2.</span>
+                Embodiment-specific data is a meaningful bottleneck for humanoid learning.
+              </p>
+              <div class="tv-options">
+                <label class="tv-option"
+                  ><input type="radio" name="embodiment_specific_bottleneck" value="Agree" /> Agree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="embodiment_specific_bottleneck" value="Disagree" />
+                  Disagree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="embodiment_specific_bottleneck" value="Unsure" /> Unsure</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="embodiment_specific_bottleneck" value="Irrelevant" />
+                  Irrelevant</label
+                >
+              </div>
+            </div>
+
+            <div class="tv-statement" role="group" aria-labelledby="tv-stmt-3">
+              <p class="tv-statement__text" id="tv-stmt-3">
+                <span class="tv-statement__num">3.</span>
+                Scene graphs, affordances, intent traces, and contact/proprioception would improve
+                learning efficiency or transfer.
+              </p>
+              <div class="tv-options">
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_traces_improve_learning" value="Agree" /> Agree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_traces_improve_learning" value="Disagree" />
+                  Disagree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_traces_improve_learning" value="Unsure" /> Unsure</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_traces_improve_learning" value="Irrelevant" />
+                  Irrelevant</label
+                >
+              </div>
+            </div>
+
+            <div class="tv-statement" role="group" aria-labelledby="tv-stmt-4">
+              <p class="tv-statement__text" id="tv-stmt-4">
+                <span class="tv-statement__num">4.</span>
+                Capture-time semantic supervision is materially better than post-hoc labeling for this
+                kind of data.
+              </p>
+              <div class="tv-options">
+                <label class="tv-option"
+                  ><input type="radio" name="capture_time_better_than_posthoc" value="Agree" /> Agree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="capture_time_better_than_posthoc" value="Disagree" />
+                  Disagree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="capture_time_better_than_posthoc" value="Unsure" /> Unsure</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="capture_time_better_than_posthoc" value="Irrelevant" />
+                  Irrelevant</label
+                >
+              </div>
+            </div>
+
+            <div class="tv-statement" role="group" aria-labelledby="tv-stmt-5">
+              <p class="tv-statement__text" id="tv-stmt-5">
+                <span class="tv-statement__num">5.</span>
+                Simulation generation grounded in real semantic captures would create meaningful
+                training value.
+              </p>
+              <div class="tv-options">
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_simulation_value" value="Agree" /> Agree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_simulation_value" value="Disagree" /> Disagree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_simulation_value" value="Unsure" /> Unsure</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="semantic_simulation_value" value="Irrelevant" />
+                  Irrelevant</label
+                >
+              </div>
+            </div>
+
+            <div class="tv-statement" role="group" aria-labelledby="tv-stmt-6">
+              <p class="tv-statement__text" id="tv-stmt-6">
+                <span class="tv-statement__num">6.</span>
+                This is a problem worth solving now, not a second-order bottleneck.
+              </p>
+              <div class="tv-options">
+                <label class="tv-option"
+                  ><input type="radio" name="worth_solving_now" value="Agree" /> Agree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="worth_solving_now" value="Disagree" /> Disagree</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="worth_solving_now" value="Unsure" /> Unsure</label
+                >
+                <label class="tv-option"
+                  ><input type="radio" name="worth_solving_now" value="Irrelevant" /> Irrelevant</label
+                >
+              </div>
+            </div>
+          </section>
+
+          <section class="tv-section tv-section--product" aria-labelledby="tv-product-heading">
+            <h2 id="tv-product-heading" class="tv-section__title">Product Signal</h2>
+            <p class="tv-section__hint">
+              If this existed, what would be most valuable? Select all that apply.
+            </p>
+            <div class="tv-options">
+              <label class="tv-option"
+                ><input type="checkbox" name="product_signal" value="Dataset" /> Dataset</label
+              >
+              <label class="tv-option"
+                ><input type="checkbox" name="product_signal" value="API" /> API</label
+              >
+              <label class="tv-option"
+                ><input type="checkbox" name="product_signal" value="Tooling" /> Tooling</label
+              >
+              <label class="tv-option"
+                ><input type="checkbox" name="product_signal" value="Full training pipeline" /> Full training
+                pipeline</label
+              >
+              <label class="tv-option"
+                ><input type="checkbox" name="product_signal" value="None" /> None</label
+              >
+              <label class="tv-option"
+                ><input type="checkbox" name="product_signal" value="Other" id="tv-product-other-checkbox" />
+                Other</label
+              >
+            </div>
+            <div id="tv-product-other-wrap" class="tv-other-wrap">
+              <label class="tv-label" for="tv-product-other-text">Please specify</label>
+              <input
+                type="text"
+                id="tv-product-other-text"
+                name="product_other_text"
+                class="tv-input"
+                autocomplete="off"
+              />
+            </div>
+          </section>
+
+          <section class="tv-section tv-section--feedback" aria-labelledby="tv-critical-heading">
+            <h2 id="tv-critical-heading" class="tv-section__title">Critical Feedback</h2>
+            <label class="tv-label" for="tv-strongest-reason"
+              >If this thesis is wrong, what is the strongest reason?</label
+            >
+            <textarea
+              id="tv-strongest-reason"
+              name="strongest_reason"
+              class="tv-textarea tv-textarea--rail"
+              rows="5"
+            ></textarea>
+          </section>
+
+          <section class="tv-section tv-section--comments" aria-labelledby="tv-comments-heading">
+            <h2 id="tv-comments-heading" class="tv-section__title">Additional Comments</h2>
+            <label class="tv-label" for="tv-comments">Any additional technical comments?</label>
+            <textarea
+              id="tv-comments"
+              name="comments"
+              class="tv-textarea tv-textarea--rail"
+              rows="5"
+            ></textarea>
+          </section>
+
+          <section class="tv-section" aria-labelledby="tv-respondent-heading">
+            <h2 id="tv-respondent-heading" class="tv-section__title">Respondent</h2>
+            <p class="tv-section__hint">Optional — share only if you are open to follow-up.</p>
+            <div class="tv-respondent-grid">
+              <div class="tv-field">
+                <label class="tv-label" for="tv-name">Name</label>
+                <input type="text" id="tv-name" name="name" class="tv-input" autocomplete="name" />
+              </div>
+              <div class="tv-field">
+                <label class="tv-label" for="tv-company">Company</label>
+                <input
+                  type="text"
+                  id="tv-company"
+                  name="company"
+                  class="tv-input"
+                  autocomplete="organization"
+                />
+              </div>
+              <div class="tv-field tv-field--email">
+                <label class="tv-label" for="tv-email">Email</label>
+                <input type="email" id="tv-email" name="email" class="tv-input" autocomplete="email" />
+              </div>
+            </div>
+          </section>
+
+          <div class="tv-actions">
+            <p id="tv-error" class="tv-error" role="alert" aria-live="polite"></p>
+            <button type="submit" class="tv-submit" id="tv-submit">
+              <span class="tv-submit__inner">
+                <span class="tv-submit__sweep" aria-hidden="true"></span>
+                <span class="tv-submit__label">Send Technical Feedback</span>
+              </span>
+            </button>
+          </div>
+        </form>
+      </article>
+    </main>
+
+    <img
+      id="tv-success-thumb"
+      class="tv-success__thumb"
+      src="media/thumb_up.png"
+      alt=""
+      width="1200"
+      height="1200"
+      hidden
+    />
+
+    <!-- Hidden iframe + form fallback for Apps Script if fetch is blocked -->
+    <iframe id="tv-fallback-frame" name="tv-fallback-frame" hidden title="Submission fallback"></iframe>
+
+    <script>
+      (function () {
+        /* ---------- Config ---------- */
+        var GOOGLE_APPS_SCRIPT_URL = "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+        var STATEMENT_KEYS = [
+          "missing_training_signals",
+          "embodiment_specific_bottleneck",
+          "semantic_traces_improve_learning",
+          "capture_time_better_than_posthoc",
+          "semantic_simulation_value",
+          "worth_solving_now",
+        ];
+
+        /* ---------- Matrix background (same as index.html) ---------- */
+        var canvas = document.getElementById("tv-matrix");
+        var panel = canvas && canvas.parentElement;
+        if (canvas && panel) {
+          var ctx = canvas.getContext("2d");
+          var fontSize = 10;
+          var chars = "0123456789ABCDEF".split("");
+          var colors = ["#7CF3BF", "#39D091", "#14784D", "#bab21c", "#dadada"];
+          var drops = [];
+
+          function resizeCanvas() {
+            canvas.width = panel.offsetWidth;
+            canvas.height = panel.offsetHeight;
+            var cols = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (var i = 0; i < cols; i++) {
+              drops[i] = Math.floor(Math.random() * canvas.height);
+            }
+            ctx.font = fontSize + "px monospace";
+          }
+
+          function rain() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.03)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < drops.length; i++) {
+              var char = chars[Math.floor(Math.random() * chars.length)];
+              var color = colors[Math.floor(Math.random() * colors.length)];
+              ctx.fillStyle = color;
+              ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+              if (Math.random() > 0.99) drops[i] = 0;
+              drops[i]++;
+            }
+          }
+
+          resizeCanvas();
+          window.addEventListener("resize", resizeCanvas);
+          setInterval(rain, 50);
+        }
+
+        /* ---------- Form logic ---------- */
+        var pageEl = document.getElementById("tv-page");
+        var form = document.getElementById("tv-form");
+        var introEl = document.getElementById("tv-memo-intro");
+        var submitBtn = document.getElementById("tv-submit");
+        var errorEl = document.getElementById("tv-error");
+        var successEl = document.getElementById("tv-success");
+        var thankEl = document.getElementById("tv-success-thank");
+        var sealWrap = document.getElementById("tv-success-seal-wrap");
+        var successThumb = document.getElementById("tv-success-thumb");
+        var successTimers = [];
+        var otherWrap = document.getElementById("tv-product-other-wrap");
+        var otherCheckbox = document.getElementById("tv-product-other-checkbox");
+        var otherText = document.getElementById("tv-product-other-text");
+
+        function showError(message) {
+          errorEl.textContent = message;
+          errorEl.classList.add("is-visible");
+        }
+
+        function clearError() {
+          errorEl.textContent = "";
+          errorEl.classList.remove("is-visible");
+        }
+
+        function getRadioValue(name) {
+          var checked = form.querySelector('input[name="' + name + '"]:checked');
+          return checked ? checked.value : "";
+        }
+
+        function hasAnyStatementAnswered() {
+          for (var i = 0; i < STATEMENT_KEYS.length; i++) {
+            if (getRadioValue(STATEMENT_KEYS[i])) return true;
+          }
+          return false;
+        }
+
+        function getCheckedValues(name) {
+          var values = [];
+          form.querySelectorAll('input[name="' + name + '"]:checked').forEach(function (input) {
+            values.push(input.value);
+          });
+          return values;
+        }
+
+        function toggleOtherField() {
+          var isOther = otherCheckbox && otherCheckbox.checked;
+          otherWrap.classList.toggle("is-visible", isOther);
+          if (!isOther && otherText) otherText.value = "";
+        }
+
+        form.querySelectorAll('input[name="product_signal"]').forEach(function (input) {
+          input.addEventListener("change", toggleOtherField);
+        });
+        toggleOtherField();
+
+        function buildPayload() {
+          var statements = {};
+          STATEMENT_KEYS.forEach(function (key) {
+            statements[key] = getRadioValue(key);
+          });
+
+          var productChoices = getCheckedValues("product_signal");
+          var payload = {
+            source: "clone-validation",
+            respondent: {
+              name: (form.elements.name && form.elements.name.value.trim()) || "",
+              company: (form.elements.company && form.elements.company.value.trim()) || "",
+              email: (form.elements.email && form.elements.email.value.trim()) || "",
+            },
+            statements: statements,
+            product_signal: {
+              choices: productChoices,
+              other_text:
+                productChoices.indexOf("Other") !== -1 && otherText ? otherText.value.trim() : "",
+            },
+            strongest_reason:
+              (form.elements.strongest_reason && form.elements.strongest_reason.value.trim()) || "",
+            comments: (form.elements.comments && form.elements.comments.value.trim()) || "",
+            timestamp: new Date().toISOString(),
+          };
+          return payload;
+        }
+
+        function validatePayload(payload) {
+          if (hasAnyStatementAnswered()) return true;
+          if (payload.strongest_reason) return true;
+          return false;
+        }
+
+        function clearSuccessTimers() {
+          successTimers.forEach(function (id) {
+            clearTimeout(id);
+          });
+          successTimers = [];
+        }
+
+        function typeWriter(el, text, durationMs) {
+          if (!el || !text) return;
+          var len = text.length;
+          var delay = durationMs / len;
+          var i = 0;
+          el.textContent = "";
+          function step() {
+            if (i < len) {
+              el.textContent += text.charAt(i);
+              i += 1;
+              successTimers.push(setTimeout(step, delay));
+            }
+          }
+          step();
+        }
+
+        function runSuccessSequence() {
+          clearSuccessTimers();
+
+          var fullText =
+            (thankEl && thankEl.getAttribute("data-full-text")) ||
+            "Thank you. Your technical feedback has been sent. If you shared contact details, we may follow up with clarifying questions.";
+
+          if (thankEl) thankEl.textContent = "";
+          if (sealWrap) sealWrap.classList.remove("is-visible");
+          if (successThumb) {
+            successThumb.classList.remove("is-visible");
+            successThumb.hidden = true;
+          }
+
+          var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (reducedMotion) {
+            if (thankEl) thankEl.textContent = fullText;
+            if (sealWrap) sealWrap.classList.add("is-visible");
+            if (successThumb) {
+              successThumb.hidden = false;
+              successThumb.classList.add("is-visible");
+            }
+            return;
+          }
+
+          successTimers.push(
+            setTimeout(function () {
+              typeWriter(thankEl, fullText, 1000);
+            }, 500)
+          );
+
+          successTimers.push(
+            setTimeout(function () {
+              if (sealWrap) sealWrap.classList.add("is-visible");
+            }, 1000)
+          );
+
+          successTimers.push(
+            setTimeout(function () {
+              if (!successThumb) return;
+              successThumb.hidden = false;
+              requestAnimationFrame(function () {
+                successThumb.classList.add("is-visible");
+              });
+            }, 2000)
+          );
+        }
+
+        function showSuccess() {
+          form.classList.add("is-hidden");
+          if (introEl) introEl.classList.add("is-hidden");
+          if (pageEl) pageEl.classList.add("tv-page--success");
+          successEl.hidden = false;
+          successEl.classList.add("is-visible");
+          runSuccessSequence();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        /*
+         * Primary: POST JSON as text/plain with mode "no-cors".
+         * Google Apps Script Web Apps accept this without a CORS preflight.
+         * Response body is opaque — treat resolve as "sent"; reject as network failure.
+         *
+         * Fallback (uncomment submitViaHiddenForm in catch): standard form POST to the same URL.
+         */
+        function submitViaFetch(payload) {
+          if (
+            !GOOGLE_APPS_SCRIPT_URL ||
+            GOOGLE_APPS_SCRIPT_URL.indexOf("PASTE_GOOGLE_APPS_SCRIPT") !== -1
+          ) {
+            return Promise.reject(new Error("Configure GOOGLE_APPS_SCRIPT_URL before submitting."));
+          }
+
+          return fetch(GOOGLE_APPS_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload),
+          });
+        }
+
+        function submitViaHiddenForm(payload) {
+          var iframe = document.getElementById("tv-fallback-frame");
+          var fallbackForm = document.createElement("form");
+          fallbackForm.method = "POST";
+          fallbackForm.action = GOOGLE_APPS_SCRIPT_URL;
+          fallbackForm.target = iframe ? iframe.name : "_blank";
+          fallbackForm.style.display = "none";
+
+          var input = document.createElement("input");
+          input.type = "hidden";
+          input.name = "payload";
+          input.value = JSON.stringify(payload);
+          fallbackForm.appendChild(input);
+
+          document.body.appendChild(fallbackForm);
+          fallbackForm.submit();
+          document.body.removeChild(fallbackForm);
+          return Promise.resolve();
+        }
+
+        form.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          clearError();
+
+          var payload = buildPayload();
+          console.log("[thesis-validation] payload", payload);
+
+          if (!validatePayload(payload)) {
+            showError(
+              "Please answer at least one validation statement, or fill in the critical feedback field."
+            );
+            return;
+          }
+
+          submitBtn.disabled = true;
+
+          submitViaFetch(payload)
+            .then(function () {
+              console.log("[thesis-validation] submitted (no-cors — response opaque)");
+              showSuccess();
+            })
+            .catch(function (err) {
+              console.error("[thesis-validation] fetch failed, trying form fallback", err);
+              submitViaHiddenForm(payload)
+                .then(function () {
+                  console.log("[thesis-validation] submitted via hidden form fallback");
+                  showSuccess();
+                })
+                .catch(function (err2) {
+                  console.error("[thesis-validation] submission failed", err2);
+                  showError(
+                    "Submission failed. Check your connection and try again, or email cognitronics@proton.me directly."
+                  );
+                  submitBtn.disabled = false;
+                });
+            });
+        });
+      })();
+    </script>
+  </body>
+</html>
