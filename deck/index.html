@@ -98,6 +98,7 @@ a{color:inherit;text-decoration:none;}
   background:var(--surface);border-bottom:1px solid var(--border);z-index:20;
 }
 .v-logo{display:flex;align-items:center;}
+.v-logo a{display:flex;align-items:center;line-height:0;}
 .v-logo-img{height:28px;width:auto;display:block;}
 .v-session{display:flex;align-items:center;gap:0.5rem;font-size:var(--xs);color:var(--text-muted);margin-left:auto;}
 .sess-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0;animation:blink 2s ease-in-out infinite;}
@@ -283,7 +284,9 @@ a{color:inherit;text-decoration:none;}
 
   <header class="v-header">
     <div class="v-logo">
-      <img class="v-logo-img" src="media/coglog.png" alt="Cognitronics" width="140" height="28" />
+      <a href="https://cognitronics.site" aria-label="Back to Cognitronics homepage">
+        <img class="v-logo-img" src="media/coglog.png" alt="Cognitronics" width="140" height="28" />
+      </a>
     </div>
     <div class="v-session">
       <div class="sess-dot"></div>
