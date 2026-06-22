@@ -1,0 +1,20 @@
+Drop PDFs in this folder. Filenames must match data_room/index.html (or update index.html).
+
+Business
+  [ ] executive-summary.pdf
+
+Corporate
+  [ ] certificate-incorporation.pdf
+  [ ] bylaws.pdf
+  [ ] cap-table.pdf
+  [ ] board-resolution-safe.pdf
+  [ ] founder-rsa.pdf
+  [ ] ip-assignment.pdf
+
+Fundraise
+  [x] Cognitronics-SAFE-T1.pdf
+  [x] Cognitronics-SAFE-T2.pdf
+  [x] Cognitronics-SAFE-T3.pdf
+
+Financials
+  [ ] financial-model.pdf
