@@ -344,6 +344,11 @@ function isValidEmail(email){
   return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email.trim());
 }
 
+function setTele(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value;
+}
+
 /* ══════════════════════════════════════════
    CONFIG
    ══════════════════════════════════════════ */
@@ -594,7 +599,7 @@ function enterView(key, meta={}){
   leaveView();
   S.viewKey = key;
   S.viewTimerSec = 0;
-  document.getElementById('t-view')?.textContent = key;
+  setTele('t-view', key);
 
   if(key === 'root'){
     S.folderData.root.visits++;
@@ -643,8 +648,8 @@ function tryAccess(){
   initSessionData();
   markActivity();
 
-  document.getElementById('t-email')?.textContent = email;
-  document.getElementById('t-start')?.textContent = S.sessionStart.toLocaleTimeString();
+  setTele('t-email', email);
+  setTele('t-start', S.sessionStart.toLocaleTimeString());
 
   document.getElementById('gate').style.display='none';
   const r = document.getElementById('room');
@@ -752,7 +757,7 @@ function handleItemClick(item,folder){
   logEvent(revisit ? 'item_reopen' : 'item_open', folder.id, {
     item: item.id, name: item.name, kind: item.kind, revisit,
   });
-  document.getElementById('t-opens')?.textContent = S.itemOpens.length;
+  setTele('t-opens', S.itemOpens.length);
   flushSync();
 
   if(item.kind==='page') openPage(item,folder);
@@ -852,7 +857,7 @@ function finalizeSession(){
 function logEvent(event, context, extra={}){
   const entry = { ts: new Date().toISOString(), event, context, ...extra };
   S.eventLog.push(entry);
-  document.getElementById('t-count')?.textContent = S.eventLog.length;
+  setTele('t-count', S.eventLog.length);
   const log = document.getElementById('t-log');
   if(!log) return;
   const row = document.createElement('div');
@@ -891,7 +896,7 @@ function startTimers(){
 
 function updateTeleTotal(){
   const t = Math.round((Date.now() - S.sessionStart) / 1000);
-  document.getElementById('t-total')?.textContent = `${Math.floor(t/60)}m ${t%60}s`;
+  setTele('t-total', `${Math.floor(t/60)}m ${t%60}s`);
 }
 
 function bindKeys(){
