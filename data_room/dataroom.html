@@ -10,10 +10,10 @@
 <style>
 :root{
   --bg:#0e0e0f;--surface:#141415;--surface-2:#1a1a1c;--surface-off:#1f1f22;--surface-dyn:#252528;
-  --border:rgba(255,255,255,0.07);--divider:rgba(255,255,255,0.04);
+  --border:rgba(255,255,255,0.08);--divider:rgba(255,255,255,0.05);
   --text:#e8e8ea;--text-muted:#8a8a90;--text-faint:#4a4a52;
-  --primary:#6366f1;--primary-h:#4f52d4;--primary-hi:rgba(99,102,241,0.13);
-  --success:#22c55e;--error:#ef4444;
+  --primary:#39d091;--primary-hover:#2eb57d;--primary-hi:rgba(57,208,145,0.15);
+  --success:#39d091;--error:#ef4444;
   --font:'Inter',sans-serif;--font-d:'Instrument Serif',Georgia,serif;
   --xs:.75rem;--sm:.875rem;--base:1rem;--lg:1.25rem;--xl:1.75rem;
   --r-sm:.375rem;--r-md:.5rem;--r-lg:.75rem;--r-xl:1rem;--r-full:9999px;
@@ -27,14 +27,32 @@ button{cursor:pointer;background:none;border:none;font:inherit;color:inherit;}
 input{font:inherit;color:inherit;}
 a{color:inherit;text-decoration:none;}
 
+.matrix-bg{
+  position:absolute;inset:0;z-index:0;overflow:hidden;
+  background:var(--bg);pointer-events:none;
+}
+.matrix-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  display:block;pointer-events:none;
+}
+.matrix-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:rgba(0,0,0,0.35);pointer-events:none;
+}
+
 /* ── GATE ── */
-#gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:100;
-  background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(99,102,241,.11),transparent 70%);}
-.gate-card{width:min(420px,90vw);padding:2.5rem;background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r-xl);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:1.5rem;}
-.gate-logo{display:flex;align-items:center;gap:.75rem;}
-.gate-logo svg{width:34px;height:34px;flex-shrink:0;}
-.gate-logo-name{font-family:var(--font-d);font-size:var(--lg);}
+#gate{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);z-index:100;
+}
+.gate-card{
+  position:relative;z-index:1;
+  width:min(420px,90vw);padding:2.5rem;background:var(--surface);
+  border:2px solid #39d091;border-radius:var(--r-xl);box-shadow:var(--shadow-lg);
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+.gate-logo{display:flex;justify-content:center;width:100%;}
+.gate-logo-img{width:min(280px,72vw);height:auto;display:block;}
 .gate-title{font-size:var(--xl);font-family:var(--font-d);line-height:1.2;}
 .gate-sub{font-size:var(--sm);color:var(--text-muted);margin-top:.25rem;}
 .form-group{display:flex;flex-direction:column;gap:.5rem;}
@@ -48,27 +66,31 @@ a{color:inherit;text-decoration:none;}
   font-size:var(--sm);font-weight:600;border-radius:var(--r-md);
   transition:background var(--ease),transform var(--ease);
   display:flex;align-items:center;justify-content:center;gap:.5rem;}
-.btn-primary:hover{background:var(--primary-h);}
+.btn-primary:hover{background:var(--primary-hover);}
 .btn-primary:active{transform:scale(.98);}
 .gate-privacy{font-size:var(--xs);color:var(--text-faint);text-align:center;line-height:1.6;}
 .err{font-size:var(--xs);color:var(--error);display:none;}
 
 /* ── ROOM SHELL ── */
-#room{display:none;min-height:100dvh;flex-direction:column;}
+#room{display:none;position:fixed;inset:0;flex-direction:column;overflow:hidden;}
+.room-shell{
+  position:relative;z-index:2;display:flex;flex-direction:column;
+  height:100dvh;min-height:100dvh;max-height:100dvh;overflow:hidden;
+}
+.room-main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;}
 
 /* Header */
-.room-header{height:60px;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;}
-.room-logo{display:flex;align-items:center;gap:.6rem;font-size:var(--sm);font-weight:600;}
-.room-logo svg{width:24px;height:24px;}
-.room-meta{display:flex;align-items:center;gap:1rem;}
-.sess-pill{display:flex;align-items:center;gap:.4rem;font-size:var(--xs);color:var(--text-muted);}
-.sess-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:blink 2s ease-in-out infinite;}
+.room-header{
+  height:52px;padding:0 1.5rem;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;
+}
+.v-logo{display:flex;align-items:center;}
+.v-logo a{display:flex;align-items:center;line-height:0;}
+.v-logo-img{height:28px;width:auto;display:block;}
+.v-session{display:flex;align-items:center;gap:.5rem;font-size:var(--xs);color:var(--text-muted);}
+.sess-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0;animation:blink 2s ease-in-out infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
-.export-btn{padding:.35rem .85rem;background:var(--primary-hi);color:var(--primary);
-  font-size:var(--xs);font-weight:600;border-radius:var(--r-md);
-  border:1px solid rgba(99,102,241,.25);transition:background var(--ease);}
-.export-btn:hover{background:rgba(99,102,241,.25);}
 
 /* Breadcrumb */
 .breadcrumb{padding:.75rem 2rem;display:flex;align-items:center;gap:.5rem;
@@ -91,7 +113,7 @@ a{color:inherit;text-decoration:none;}
   padding:1.25rem 1.25rem 1rem;cursor:pointer;
   transition:background var(--ease),border-color var(--ease),transform var(--ease);
   display:flex;flex-direction:column;gap:.875rem;}
-.folder-card:hover{background:var(--surface-off);border-color:rgba(99,102,241,.3);transform:translateY(-1px);}
+.folder-card:hover{background:var(--surface-off);border-color:rgba(57,208,145,.3);transform:translateY(-1px);}
 .folder-icon{width:40px;height:40px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:0 auto;}
 .folder-name{font-size:var(--sm);font-weight:600;}
 .folder-count{font-size:var(--xs);color:var(--text-faint);}
@@ -101,7 +123,7 @@ a{color:inherit;text-decoration:none;}
 .doc-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
   padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;cursor:pointer;
   transition:background var(--ease),border-color var(--ease);text-decoration:none;color:inherit;}
-.doc-row:hover{background:var(--surface-off);border-color:rgba(99,102,241,.25);}
+.doc-row:hover{background:var(--surface-off);border-color:rgba(57,208,145,.25);}
 .doc-icon{width:36px;height:36px;border-radius:var(--r-sm);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .doc-info{flex:1;min-width:0;}
 .doc-name{font-size:var(--sm);font-weight:500;}
@@ -110,7 +132,7 @@ a{color:inherit;text-decoration:none;}
 .doc-row:hover .doc-arrow{transform:translateX(3px);color:var(--primary);}
 .type-badge{font-size:var(--xs);color:var(--text-faint);padding:.15rem .5rem;background:var(--surface-dyn);border-radius:var(--r-full);flex-shrink:0;}
 .page-badge{font-size:var(--xs);color:var(--primary);padding:.15rem .5rem;background:var(--primary-hi);
-  border:1px solid rgba(99,102,241,.2);border-radius:var(--r-full);flex-shrink:0;}
+  border:1px solid rgba(57,208,145,.25);border-radius:var(--r-full);flex-shrink:0;}
 .viewed-dot{width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0;opacity:0;transition:opacity var(--ease);}
 .viewed-dot.show{opacity:1;}
 
@@ -146,9 +168,11 @@ a{color:inherit;text-decoration:none;}
 .safe-tier-cap{font-size:var(--lg);font-family:var(--font-d);color:var(--primary);white-space:nowrap;}
 
 /* Footer */
-.contact-footer{padding:1.5rem 2rem;border-top:1px solid var(--divider);
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;}
-.contact-text{font-size:var(--xs);color:var(--text-faint);}
+.contact-footer{
+  padding:1rem 1.5rem;border-top:1px solid var(--divider);flex-shrink:0;
+  display:flex;align-items:center;justify-content:flex-end;
+  background:var(--surface);
+}
 .contact-link{font-size:var(--xs);color:var(--primary);font-weight:500;display:flex;align-items:center;gap:.35rem;}
 
 /* Telemetry */
@@ -184,15 +208,12 @@ a{color:inherit;text-decoration:none;}
 
 <!-- GATE -->
 <div id="gate">
+  <div class="matrix-bg" aria-hidden="true">
+    <canvas id="gate-matrix" class="matrix-canvas"></canvas>
+  </div>
   <div class="gate-card">
     <div class="gate-logo">
-      <svg viewBox="0 0 34 34" fill="none">
-        <rect x="1.5" y="1.5" width="31" height="31" rx="7.5" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.4)" stroke-width="1.5"/>
-        <circle cx="17" cy="13" r="5" stroke="#6366f1" stroke-width="1.5"/>
-        <path d="M9 27c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
-        <circle cx="17" cy="13" r="2" fill="#6366f1"/>
-      </svg>
-      <span class="gate-logo-name">Cognitronics</span>
+      <img class="gate-logo-img" src="media/coglog.png" alt="Cognitronics" width="280" height="56" />
     </div>
     <div>
       <div class="gate-title">Data Room</div>
@@ -213,35 +234,38 @@ a{color:inherit;text-decoration:none;}
 
 <!-- ROOM -->
 <div id="room">
+  <div class="matrix-bg" aria-hidden="true">
+    <canvas id="room-matrix" class="matrix-canvas"></canvas>
+    <div class="matrix-overlay"></div>
+  </div>
+  <div class="room-shell">
   <header class="room-header">
-    <div class="room-logo">
-      <svg viewBox="0 0 24 24" fill="none">
-        <rect x="1" y="1" width="22" height="22" rx="5" stroke="#6366f1" stroke-width="1.5"/>
-        <circle cx="12" cy="9" r="3.5" stroke="#6366f1" stroke-width="1.5"/>
-        <path d="M6 19c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/>
-        <circle cx="12" cy="9" r="1.2" fill="#6366f1"/>
-      </svg>
-      Cognitronics
+    <div class="v-logo">
+      <a href="https://cognitronics.site" id="home-link" aria-label="Back to Cognitronics homepage">
+        <img class="v-logo-img" src="media/coglog.png" alt="Cognitronics" width="140" height="28" />
+      </a>
     </div>
-    <div class="room-meta">
-      <div class="sess-pill"><div class="sess-dot"></div><span>Session active</span></div>
-      <button class="export-btn" id="export-btn">Export CSV</button>
+    <div class="v-session">
+      <div class="sess-dot"></div>
+      <span>Session active</span>
     </div>
   </header>
-  <div class="breadcrumb" id="breadcrumb"></div>
-  <div id="folder-view">
-    <div class="room-body" id="room-body"></div>
-  </div>
-  <div id="page-view">
-    <div class="page-content" id="page-content"></div>
+  <div class="room-main">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <div id="folder-view">
+      <div class="room-body" id="room-body"></div>
+    </div>
+    <div id="page-view">
+      <div class="page-content" id="page-content"></div>
+    </div>
   </div>
   <footer class="contact-footer">
-    <span class="contact-text">Questions about these materials?</span>
     <a class="contact-link" href="mailto:investors@cognitronics.ai" id="contact-link">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
       investors@cognitronics.ai
     </a>
   </footer>
+  </div>
 </div>
 
 <!-- TELEMETRY -->
@@ -254,6 +278,8 @@ a{color:inherit;text-decoration:none;}
     <div class="tele-row"><span class="tk">Email</span><span class="tv" id="t-email">—</span></div>
     <div class="tele-row"><span class="tk">Session start</span><span class="tv" id="t-start">—</span></div>
     <div class="tele-row"><span class="tk">Total time</span><span class="tv" id="t-total">0s</span></div>
+    <div class="tele-row"><span class="tk">Current view</span><span class="tv" id="t-view">—</span></div>
+    <div class="tele-row"><span class="tk">Item opens</span><span class="tv" id="t-opens">0</span></div>
     <div class="tele-row"><span class="tk">Events</span><span class="tv" id="t-count">0</span></div>
     <div><div class="tk" style="margin-bottom:.5rem">Event log</div><div class="tele-log" id="t-log"></div></div>
   </div>
@@ -261,14 +287,71 @@ a{color:inherit;text-decoration:none;}
 <div class="toast" id="toast"></div>
 
 <script>
+function initMatrixRain(canvas){
+  if(!canvas) return null;
+  const panel = canvas.parentElement;
+  if(!panel) return null;
+  const ctx = canvas.getContext('2d');
+  const fontSize = 10;
+  const chars = '0123456789ABCDEF'.split('');
+  const colors = ['#7CF3BF', '#39D091', '#14784D', '#bab21c', '#dadada'];
+  let drops = [];
+
+  function resizeCanvas(){
+    canvas.width = panel.offsetWidth;
+    canvas.height = panel.offsetHeight;
+    const cols = Math.floor(canvas.width / fontSize);
+    drops = [];
+    for(let i = 0; i < cols; i++) drops[i] = Math.floor(Math.random() * canvas.height);
+    ctx.font = fontSize + 'px monospace';
+  }
+
+  function rain(){
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for(let i = 0; i < drops.length; i++){
+      ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+      ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, drops[i] * fontSize);
+      if(Math.random() > 0.99) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  setInterval(rain, 50);
+  return { resize: resizeCanvas };
+}
+
+const gateMatrix = initMatrixRain(document.getElementById('gate-matrix'));
+let roomMatrix = null;
+
+const DEBUG_TELEMETRY = new URLSearchParams(location.search).has('debug');
+if(!DEBUG_TELEMETRY) document.getElementById('tele')?.remove();
+
+/* Paste your deployed data room GAS web app URL here */
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPa3o2v9LZXwRz2B-a16UxY617WDsuR1uya4w6XgvCQHw-iies9Vr2znlLJbNN37FUUA/exec';
+
+const IDLE_MS = 60000;
+const SYNC_INTERVAL_MS = 5000;
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+let lastActivityAt = 0;
+let lastSyncAt = 0;
+let wasIdle = false;
+
+function isValidEmail(email){
+  return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email.trim());
+}
+
 /* ══════════════════════════════════════════
    CONFIG
    ══════════════════════════════════════════ */
 const FOLDERS = [
   {
     id:'business', name:'Business',
-    color:'#6366f1', bg:'rgba(99,102,241,0.12)',
-    icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
+    color:'#39d091', bg:'rgba(57,208,145,0.12)',
+    icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39d091" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
     items:[
       { id:'validation-thesis', name:'Validation Thesis',  kind:'page',  meta:'Interactive overview', pageId:'validation-thesis' },
       { id:'exec-summary',      name:'Executive Summary',  kind:'pdf',   meta:'PDF · 340 KB',         url:'docs/executive-summary.pdf' },
@@ -374,34 +457,232 @@ const PAGES = {
 const S = {
   email:'', sessionId:'', sessionStart:null,
   view:'root', folder:null, page:null,
-  events:[], viewed:new Set(), closed:false,
+  folderData:{}, itemData:{},
+  itemOpens:[], eventLog:[],
+  viewed:new Set(),
+  viewKey:null, viewTimerSec:0,
+  closed:false, completeSent:false, idle:false,
 };
+
+function initSessionData(){
+  S.folderData = { root:{ totalSec:0, visits:0 } };
+  FOLDERS.forEach(f => { S.folderData[f.id] = { totalSec:0, visits:0 }; });
+  S.itemData = {};
+  S.itemOpens = [];
+  S.eventLog = [];
+  S.viewed = new Set();
+  S.viewKey = null;
+  S.viewTimerSec = 0;
+  S.closed = false;
+  S.completeSent = false;
+  S.idle = false;
+}
+
+function ensureItemData(item, folder){
+  if(!S.itemData[item.id]){
+    S.itemData[item.id] = {
+      totalSec:0, visits:0,
+      folder:folder.id, kind:item.kind, name:item.name,
+    };
+  }
+}
+
+function markActivity(){
+  lastActivityAt = Date.now();
+  if(S.idle){
+    S.idle = false;
+    wasIdle = false;
+    logEvent('resume', S.viewKey || S.view, {});
+    flushSync();
+  }
+}
+
+function buildSessionPayload(type){
+  const now = new Date();
+  const folders = {};
+  const foldersRevisited = [];
+
+  Object.keys(S.folderData).forEach(fid => {
+    const visits = S.folderData[fid].visits;
+    const revisited = visits > 1;
+    folders[fid] = {
+      time_sec: S.folderData[fid].totalSec,
+      visits,
+      revisited,
+    };
+    if(revisited && fid !== 'root') foldersRevisited.push(fid);
+  });
+
+  const items = {};
+  const itemsRevisited = [];
+  Object.keys(S.itemData).forEach(iid => {
+    const d = S.itemData[iid];
+    const revisited = d.visits > 1;
+    items[iid] = {
+      time_sec: d.totalSec,
+      visits: d.visits,
+      revisited,
+      folder: d.folder,
+      kind: d.kind,
+      name: d.name,
+    };
+    if(revisited) itemsRevisited.push(iid);
+  });
+
+  return {
+    type,
+    session_id: S.sessionId,
+    email: S.email,
+    session_start: S.sessionStart.toISOString(),
+    session_end: type === 'session_complete' ? now.toISOString() : '',
+    last_sync_at: now.toISOString(),
+    session_status: type === 'session_complete' ? 'complete' : (S.idle ? 'idle' : 'active'),
+    total_duration_sec: Math.round((now - S.sessionStart) / 1000),
+    folders,
+    folders_revisited: foldersRevisited,
+    items,
+    items_revisited: itemsRevisited,
+    item_opens: S.itemOpens,
+    event_log: S.eventLog,
+    current_view: S.viewKey || '',
+    source: location.href,
+    user_agent: navigator.userAgent,
+  };
+}
+
+function syncSession(type, useBeacon){
+  if(!S.sessionStart || !S.email) return;
+  if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes('PASTE_DATAROOM')) return;
+  if(type === 'session_complete'){
+    if(S.completeSent) return;
+    S.completeSent = true;
+  } else if(S.closed){
+    return;
+  }
+
+  lastSyncAt = Date.now();
+  const body = JSON.stringify(buildSessionPayload(type));
+
+  if(useBeacon && type === 'session_complete' && navigator.sendBeacon){
+    navigator.sendBeacon(
+      GOOGLE_APPS_SCRIPT_URL,
+      new Blob([body], { type: 'text/plain;charset=utf-8' })
+    );
+  }
+
+  fetch(GOOGLE_APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    keepalive: true,
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body,
+  }).catch(() => {});
+}
+
+function flushSync(){
+  syncSession('session_sync', false);
+}
+
+function leaveView(){
+  if(!S.viewKey) return;
+  logEvent('leave_view', S.viewKey, { durationSec: S.viewTimerSec });
+  S.viewKey = null;
+  S.viewTimerSec = 0;
+}
+
+function enterView(key, meta={}){
+  leaveView();
+  S.viewKey = key;
+  S.viewTimerSec = 0;
+  document.getElementById('t-view')?.textContent = key;
+
+  if(key === 'root'){
+    S.folderData.root.visits++;
+    const revisit = S.folderData.root.visits > 1;
+    logEvent(revisit ? 'revisit_root' : 'enter_root', 'root', { visit: S.folderData.root.visits });
+  } else if(key.startsWith('folder:')){
+    const fid = key.slice(7);
+    S.folderData[fid].visits++;
+    const revisit = S.folderData[fid].visits > 1;
+    logEvent(revisit ? 'revisit_folder' : 'folder_open', fid, { visit: S.folderData[fid].visits, ...meta });
+  } else if(key.startsWith('page:')){
+    const iid = key.slice(5);
+    const d = S.itemData[iid];
+    if(d) logEvent('view_page', d.folder, { item: iid, name: d.name, visit: d.visits });
+  }
+}
+
+function tickViewTime(){
+  if(!S.viewKey || S.idle) return;
+  S.viewTimerSec++;
+  if(S.viewKey === 'root'){
+    S.folderData.root.totalSec++;
+  } else if(S.viewKey.startsWith('folder:')){
+    S.folderData[S.viewKey.slice(7)].totalSec++;
+  } else if(S.viewKey.startsWith('page:')){
+    const iid = S.viewKey.slice(5);
+    if(S.itemData[iid]) S.itemData[iid].totalSec++;
+  }
+}
 
 /* ══════════════════════════════════════════
    GATE
    ══════════════════════════════════════════ */
 document.getElementById('access-btn').addEventListener('click', tryAccess);
 document.getElementById('email-in').addEventListener('keydown', e => { if(e.key==='Enter') tryAccess(); });
+
 function tryAccess(){
-  const email=document.getElementById('email-in').value.trim();
-  const err=document.getElementById('email-err');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.style.display='block';return;}
+  const email = document.getElementById('email-in').value.trim();
+  const err = document.getElementById('email-err');
+  if(!isValidEmail(email)){ err.style.display='block'; return; }
   err.style.display='none';
-  S.email=email; S.sessionId='dr_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
-  S.sessionStart=new Date();
-  document.getElementById('t-email').textContent=email;
-  document.getElementById('t-start').textContent=S.sessionStart.toLocaleTimeString();
+
+  S.email = email;
+  S.sessionId = 'dr_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  S.sessionStart = new Date();
+  initSessionData();
+  markActivity();
+
+  document.getElementById('t-email')?.textContent = email;
+  document.getElementById('t-start')?.textContent = S.sessionStart.toLocaleTimeString();
+
   document.getElementById('gate').style.display='none';
-  const r=document.getElementById('room'); r.style.display='flex'; r.style.flexDirection='column';
-  logEvent('session_start','root',{});
-  renderRoot(); startTimer(); bindKeys();
-  document.getElementById('contact-link').addEventListener('click',()=>logEvent('contact_click','root',{}));
+  const r = document.getElementById('room');
+  r.style.display='flex';
+  r.style.flexDirection='column';
+  if(!roomMatrix) roomMatrix = initMatrixRain(document.getElementById('room-matrix'));
+  requestAnimationFrame(() => roomMatrix?.resize());
+
+  bindHomeLink();
+  bindKeys();
+  startTimers();
+  renderRoot();
+  syncSession('session_start', false);
 }
+
+function bindHomeLink(){
+  const homeLink = document.getElementById('home-link');
+  if(!homeLink) return;
+  homeLink.addEventListener('click', e => {
+    if(!S.sessionStart || S.closed) return;
+    e.preventDefault();
+    const href = homeLink.href;
+    finalizeSession();
+    setTimeout(() => { window.location.href = href; }, 450);
+  });
+}
+
+document.getElementById('contact-link')?.addEventListener('click', () => {
+  markActivity();
+  logEvent('contact_click', S.viewKey || S.view, {});
+  flushSync();
+});
 
 /* ══════════════════════════════════════════
    RENDER ROOT
    ══════════════════════════════════════════ */
 function renderRoot(){
+  markActivity();
   S.view='root'; S.folder=null; S.page=null;
   showView('folder');
   updateBreadcrumb();
@@ -411,17 +692,19 @@ function renderRoot(){
   FOLDERS.forEach(f=>{
     const card=document.createElement('div'); card.className='folder-card';
     card.innerHTML=`<div class="folder-icon" style="background:${f.bg}">${f.icon}</div><div><div class="folder-name">${f.name}</div><div class="folder-count">${f.items.length} item${f.items.length>1?'s':''}</div></div>`;
-    card.addEventListener('click',()=>openFolder(f));
+    card.addEventListener('click',()=>{ markActivity(); openFolder(f); });
     grid.appendChild(card);
   });
+  enterView('root');
+  flushSync();
 }
 
 /* ══════════════════════════════════════════
    RENDER FOLDER
    ══════════════════════════════════════════ */
 function openFolder(folder){
+  markActivity();
   S.view='folder'; S.folder=folder; S.page=null;
-  logEvent('folder_open','root',{folder:folder.id});
   showView('folder');
   updateBreadcrumb();
   const body=document.getElementById('room-body');
@@ -442,20 +725,46 @@ function openFolder(folder){
     row.addEventListener('click',()=>handleItemClick(item,folder));
     list.appendChild(row);
   });
+  enterView('folder:'+folder.id, { folder: folder.id, name: folder.name });
+  flushSync();
 }
 
 function handleItemClick(item,folder){
+  markActivity();
+  ensureItemData(item, folder);
+  const revisit = S.itemData[item.id].visits > 0;
+  S.itemData[item.id].visits++;
   S.viewed.add(item.id);
-  const dot=document.getElementById('vd-'+item.id); if(dot) dot.classList.add('show');
-  logEvent('item_open',folder.id,{item:item.id,name:item.name,kind:item.kind});
+  const dot=document.getElementById('vd-'+item.id);
+  if(dot) dot.classList.add('show');
+
+  S.itemOpens.push({
+    ts: new Date().toISOString(),
+    item: item.id,
+    name: item.name,
+    kind: item.kind,
+    folder: folder.id,
+    revisit,
+    view_sec: S.viewTimerSec,
+    url: item.url || '',
+  });
+
+  logEvent(revisit ? 'item_reopen' : 'item_open', folder.id, {
+    item: item.id, name: item.name, kind: item.kind, revisit,
+  });
+  document.getElementById('t-opens')?.textContent = S.itemOpens.length;
+  flushSync();
+
   if(item.kind==='page') openPage(item,folder);
-  else { window.open(item.url,'_blank','noopener'); }
+  else window.open(item.url,'_blank','noopener');
 }
 
 /* ══════════════════════════════════════════
    RENDER INLINE PAGE
    ══════════════════════════════════════════ */
 function openPage(item,folder){
+  markActivity();
+  ensureItemData(item, folder);
   S.view='page'; S.page=item;
   showView('page');
   updateBreadcrumb();
@@ -463,12 +772,10 @@ function openPage(item,folder){
   const pc=document.getElementById('page-content');
   let html=`<div class="page-hero"><div class="page-title">${data.title}</div><div class="page-accent"></div><div class="page-lead">${data.lead}</div></div>`;
 
-  /* Video embed */
   if(data.video){
     html+=`<div class="iframe-wrap"><iframe src="${data.video}" allow="autoplay" allowfullscreen loading="lazy"></iframe></div>`;
   }
 
-  /* Tiers (fundraise page) */
   if(data.tiers){
     html+=`<div class="page-section"><div class="page-section-title">SAFE Tiers — Early Investor Incentive</div><div class="safe-tiers">`;
     data.tiers.forEach(t=>{
@@ -477,19 +784,19 @@ function openPage(item,folder){
     html+=`</div></div>`;
   }
 
-  /* Stats grid (use-of-funds) */
   if(data.stats){
     html+=`<div class="page-section"><div class="page-section-title">Budget Allocation</div><div class="stat-grid">`;
     data.stats.forEach(([v,l])=>{ html+=`<div class="stat-card"><div class="stat-v">${v}</div><div class="stat-l">${l}</div></div>`; });
     html+=`</div></div>`;
   }
 
-  /* Sections */
   (data.sections||[]).forEach(s=>{
     html+=`<div class="page-section"><div class="page-section-title">${s.title}</div><div class="page-body">${s.body}</div></div>`;
   });
 
   pc.innerHTML=html;
+  enterView('page:'+item.id);
+  flushSync();
 }
 
 /* ══════════════════════════════════════════
@@ -513,8 +820,8 @@ function updateBreadcrumb(){
   bc.innerHTML=html;
   const br=document.getElementById('bc-root');
   const bf=document.getElementById('bc-folder');
-  if(br) br.addEventListener('click',()=>{logEvent('breadcrumb_root',S.view,{});renderRoot();});
-  if(bf) bf.addEventListener('click',()=>{logEvent('breadcrumb_folder',S.view,{});openFolder(S.folder);});
+  if(br) br.addEventListener('click',()=>{ markActivity(); logEvent('breadcrumb_root', S.view, {}); renderRoot(); });
+  if(bf) bf.addEventListener('click',()=>{ markActivity(); logEvent('breadcrumb_folder', S.view, {}); openFolder(S.folder); });
 }
 
 function itemIcon(item,color){
@@ -523,56 +830,97 @@ function itemIcon(item,color){
 }
 
 /* ══════════════════════════════════════════
-   SESSION / LOGGING / EXPORT
+   SESSION SYNC / CLOSE
    ══════════════════════════════════════════ */
-window.addEventListener('beforeunload',closeSession);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')closeSession();});
-function closeSession(){if(S.closed||!S.sessionStart)return;S.closed=true;logEvent('session_end',S.view,{});}
+window.addEventListener('beforeunload', finalizeSession);
+window.addEventListener('pagehide', finalizeSession);
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden' && S.sessionStart && !S.closed){
+    syncSession('session_sync', true);
+  }
+});
 
-function logEvent(event,context,extra){
-  const entry={ts:new Date().toISOString(),event,context,...extra};
-  S.events.push(entry);
-  document.getElementById('t-count').textContent=S.events.length;
-  const log=document.getElementById('t-log');
-  const row=document.createElement('div'); row.className='tele-entry';
-  let txt=`${new Date().toLocaleTimeString()} · ${event} · ${context}`;
-  if(extra.name) txt+=` · ${extra.name}`;
-  row.textContent=txt; log.prepend(row);
+function finalizeSession(){
+  if(S.closed || !S.sessionStart) return;
+  leaveView();
+  logEvent('session_end', S.view, {});
+  syncSession('session_sync', false);
+  S.closed = true;
+  syncSession('session_complete', true);
 }
 
-function startTimer(){
+function logEvent(event, context, extra={}){
+  const entry = { ts: new Date().toISOString(), event, context, ...extra };
+  S.eventLog.push(entry);
+  document.getElementById('t-count')?.textContent = S.eventLog.length;
+  const log = document.getElementById('t-log');
+  if(!log) return;
+  const row = document.createElement('div');
+  row.className = 'tele-entry';
+  let txt = `${new Date().toLocaleTimeString()} · ${event} · ${context}`;
+  if(extra.name) txt += ` · ${extra.name}`;
+  if(extra.item) txt += ` · ${extra.item}`;
+  if(extra.durationSec !== undefined) txt += ` · ${extra.durationSec}s`;
+  if(extra.revisit) txt += ' · revisit';
+  row.textContent = txt;
+  log.prepend(row);
+}
+
+function startTimers(){
+  lastActivityAt = Date.now();
   setInterval(()=>{
-    const t=Math.round((Date.now()-S.sessionStart)/1000);
-    document.getElementById('t-total').textContent=`${Math.floor(t/60)}m ${t%60}s`;
-  },1000);
+    if(S.closed || !S.sessionStart) return;
+
+    const now = Date.now();
+    S.idle = now - lastActivityAt > IDLE_MS;
+
+    if(S.idle && !wasIdle){
+      wasIdle = true;
+      logEvent('idle', S.viewKey || S.view, {});
+      flushSync();
+    }
+
+    if(!S.idle){
+      tickViewTime();
+      if(now - lastSyncAt >= SYNC_INTERVAL_MS) flushSync();
+    }
+
+    updateTeleTotal();
+  }, 1000);
+}
+
+function updateTeleTotal(){
+  const t = Math.round((Date.now() - S.sessionStart) / 1000);
+  document.getElementById('t-total')?.textContent = `${Math.floor(t/60)}m ${t%60}s`;
 }
 
 function bindKeys(){
-  document.addEventListener('keydown',e=>{if(e.key==='t'||e.key==='T')toggleTele();});
-}
-function toggleTele(){const p=document.getElementById('tele');p.style.display=p.style.display==='block'?'none':'block';}
-document.getElementById('tele-x').addEventListener('click',()=>{document.getElementById('tele').style.display='none';});
-
-document.getElementById('export-btn').addEventListener('click',exportCSV);
-function exportCSV(){
-  if(!S.sessionStart){showToast('No active session.');return;}
-  closeSession();
-  const totalSec=Math.round((Date.now()-S.sessionStart)/1000);
-  const opens=S.events.filter(e=>e.event==='item_open');
-  const folders=S.events.filter(e=>e.event==='folder_open');
-  const headers=['session_id','email','session_start','total_sec','folders_visited','items_opened_count','items_opened_names','full_event_log'];
-  const values=[S.sessionId,S.email,S.sessionStart.toISOString(),totalSec,
-    folders.map(e=>e.folder).join(' | '),opens.length,
-    opens.map(e=>e.name).join(' | '),
-    JSON.stringify(S.events).replace(/"/g,'""')];
-  const csv=[headers,values].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download=`cognitronics_dataroom_${S.sessionId}.csv`;
-  a.click(); showToast('Session exported as CSV ✓');
+  document.addEventListener('keydown', e => {
+    markActivity();
+    if(DEBUG_TELEMETRY && (e.key==='t' || e.key==='T')) toggleTele();
+  });
+  document.addEventListener('click', () => markActivity(), { passive: true });
+  document.addEventListener('scroll', () => markActivity(), { passive: true });
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function toggleTele(){
+  const p = document.getElementById('tele');
+  if(!p) return;
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+if(DEBUG_TELEMETRY){
+  document.getElementById('tele-x')?.addEventListener('click', () => {
+    const p = document.getElementById('tele');
+    if(p) p.style.display = 'none';
+  });
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
 </script>
 </body>
 </html>
