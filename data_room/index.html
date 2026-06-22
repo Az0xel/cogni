@@ -360,8 +360,8 @@ const FOLDERS = [
     items:[
       { id:'validation-thesis', name:'Validation Thesis',  kind:'page',  meta:'Interactive overview', pageId:'validation-thesis' },
       { id:'exec-summary',      name:'Executive Summary',  kind:'pdf',   meta:'PDF · 340 KB',         url:'docs/executive-summary.pdf' },
-      { id:'pitch-deck',        name:'Pitch Deck',         kind:'pdf',   meta:'PDF · 4.8 MB',         url:'docs/pitch-deck.pdf' },
-      { id:'poc-video',         name:'POC Demo Video',     kind:'page',  meta:'Embedded video',       pageId:'poc-video' },
+      { id:'pitch-deck',        name:'Pitch Deck',         kind:'link',  meta:'Slide deck · 15 slides', url:'/deck' },
+      { id:'poc-video',         name:'POC Demo Video',     kind:'link',  meta:'Demo video',             url:'/poc-video' },
       { id:'team',              name:'Team',               kind:'page',  meta:'Interactive page',     pageId:'team' },
     ]
   },
@@ -720,6 +720,8 @@ function openFolder(folder){
     const viewed=S.viewed.has(item.id);
     const badge=item.kind==='page'
       ? `<span class="page-badge">PAGE</span>`
+      : item.kind==='link'
+      ? `<span class="page-badge">LINK</span>`
       : `<span class="type-badge">PDF</span>`;
     row.innerHTML=`
       <div class="doc-icon" style="background:${folder.bg}">${itemIcon(item,folder.color)}</div>
@@ -830,6 +832,7 @@ function updateBreadcrumb(){
 }
 
 function itemIcon(item,color){
+  if(item.kind==='link') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
   if(item.kind==='page') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>`;
   return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
 }

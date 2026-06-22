@@ -3,3 +3,13 @@
 
 [build]
   publish = "."
+
+[[redirects]]
+  from = "/deck"
+  to = "/deck.html"
+  status = 200
+
+[[redirects]]
+  from = "/poc-video"
+  to = "/poc-video.html"
+  status = 200

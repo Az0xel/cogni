@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC Demo Video — Cognitronics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0e0f;--surface:#141415;--surface-2:#1a1a1c;--border:rgba(255,255,255,0.08);
+  --text:#e8e8ea;--text-muted:#8a8a90;--primary:#39d091;
+  --font:'Inter',sans-serif;--font-d:'Instrument Serif',Georgia,serif;
+  --r-lg:0.75rem;--shadow-lg:0 12px 48px rgba(0,0,0,0.7);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100dvh;font-family:var(--font);color:var(--text);background:var(--bg);}
+a{color:inherit;text-decoration:none;}
+.header{
+  height:52px;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border-bottom:1px solid var(--border);
+}
+.logo img{height:28px;width:auto;display:block;}
+.back{font-size:0.75rem;color:var(--primary);font-weight:500;}
+.main{
+  max-width:960px;margin:0 auto;padding:2rem 1.5rem 3rem;
+  display:flex;flex-direction:column;gap:1.5rem;
+}
+.title{font-family:var(--font-d);font-size:clamp(1.5rem,3vw,2rem);line-height:1.2;}
+.lead{font-size:0.875rem;color:var(--text-muted);line-height:1.7;max-width:60ch;}
+.video-wrap{
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--border);
+  background:var(--surface-2);box-shadow:var(--shadow-lg);aspect-ratio:16/9;
+}
+.video-wrap iframe{width:100%;height:100%;border:none;}
+</style>
+</head>
+<body>
+<header class="header">
+  <a class="logo" href="/" aria-label="Back to data room">
+    <img src="media/coglog.png" alt="Cognitronics" width="140" height="28" />
+  </a>
+  <a class="back" href="/">← Data room</a>
+</header>
+<main class="main">
+  <div>
+    <h1 class="title">POC Demo Video</h1>
+    <p class="lead">Proof-of-concept demonstration of the Cognitronics cognitive routing layer.</p>
+  </div>
+  <div class="video-wrap">
+    <iframe
+      src="https://drive.google.com/file/d/1sSaB_wFg9I386kvT7EZXDGtVqG7qRtv5/preview"
+      allow="autoplay; fullscreen"
+      allowfullscreen
+      loading="lazy"
+      title="Cognitronics POC demo video"></iframe>
+  </div>
+</main>
+</body>
+</html>
