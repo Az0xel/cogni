@@ -195,7 +195,8 @@ function upsertSessionRow_(data) {
 
   if (rowIndex > 0) {
     wasComplete = sheet.getRange(rowIndex, 6).getValue() === "complete";
-    sheet.getRange(rowIndex, 1, rowIndex, row.length).setValues([row]);
+    /* getRange(row, col, numRows, numCols) — one row, full width */
+    sheet.getRange(rowIndex, 1, 1, row.length).setValues([row]);
   } else {
     sheet.appendRow(row);
   }

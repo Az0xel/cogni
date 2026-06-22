@@ -669,7 +669,7 @@ function handleLinkClick(z){
   });
   logEvent('link_click', z.slide, { label: z.label, url: z.url, slide_sec: S.slideTimerSec });
   document.getElementById('t-links').textContent = S.linkClicks.length;
-  flushSync();
+  syncSession('session_sync', false);
   window.open(z.url,'_blank','noopener');
 }
 
@@ -706,7 +706,6 @@ function goTo(n){
 
   logEvent('navigate', n, { from, direction });
 
-  // Link zones
   document.querySelectorAll('.link-zone').forEach(z=>{
     z.style.display = Number(z.dataset.slide)===n ? 'block' : 'none';
   });
@@ -714,7 +713,8 @@ function goTo(n){
   enterSlide(n, { direction, from });
   updateControls();
   updateDots();
-  flushSync();
+  /* sync after state is updated — every slide change */
+  syncSession('session_sync', false);
 }
 
 function getSlideEl(n){
@@ -848,9 +848,11 @@ document.addEventListener('visibilitychange', () => {
 
 function finalizeSession(){
   if(S.closed || !S.sessionStart) return;
-  S.closed = true;
   leaveSlide(S.current);
   logEvent('session_end', S.current);
+  /* final sync while still open, then complete */
+  syncSession('session_sync', false);
+  S.closed = true;
   syncSession('session_complete', true);
 }
 
