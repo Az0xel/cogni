@@ -1,32 +1,31 @@
 /**
- * Cognitronics — Investor deck access logging
+ * Cognitronics — Investor deck session analytics (incremental sync)
  *
- * Deploy as a separate Google Apps Script Web App (not the thesis-validation script):
- * 1. Open the same Google Sheet as thesis validation, or create a new one.
- * 2. Extensions → Apps Script → New project → paste this file.
- * 3. Set SHEET_ID, SHEET_NAME, EMAIL_TO below.
- * 4. Run setupSheet() once (authorize when prompted).
- * 5. Deploy → New deployment → Web app
+ * Deploy as a separate Google Apps Script Web App (not thesis-validation):
+ * 1. script.google.com → New project → paste this file.
+ * 2. Set SHEET_ID, SHEET_NAME, EMAIL_TO below.
+ * 3. Run setupSheet() once (authorize when prompted).
+ * 4. Deploy → New deployment → Web app
  *    - Execute as: Me
  *    - Who has access: Anyone
- * 6. Copy the /exec URL into deck/index.html → GOOGLE_APPS_SCRIPT_URL
+ * 5. Copy the /exec URL into deck/index.html → GOOGLE_APPS_SCRIPT_URL
  *
- * Frontend sends JSON via POST (Content-Type: text/plain) to avoid CORS preflight.
+ * Frontend POST types:
+ *   session_start  — create row (upsert)
+ *   session_sync   — update row while reading
+ *   session_complete — final update + notification email
+ *
+ * Content-Type: text/plain avoids CORS preflight.
  */
 
-const SHEET_ID = "PASTE_YOUR_SHEET_ID";
+const SHEET_ID = "1NgvC4bT03PfvqS6qjVoX_m-ltNZ94tOHkw31_YNJRbU";
 const SHEET_NAME = "Deck access";
 const EMAIL_TO = "cognitronics@proton.me";
+const SLIDE_COUNT = 15;
 
 function setupSheet() {
-  const sheet = getSheet_();
-  const headers = [
-    "timestamp",
-    "email",
-    "session_id",
-    "source",
-    "user_agent",
-  ];
+  var sheet = getSheet_();
+  var headers = buildHeaders_();
 
   if (sheet.getLastRow() === 0) {
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
@@ -35,9 +34,36 @@ function setupSheet() {
   }
 }
 
+function buildHeaders_() {
+  var headers = [
+    "session_id",
+    "email",
+    "session_start",
+    "session_end",
+    "last_sync_at",
+    "session_status",
+    "total_duration_sec",
+    "slides_revisited",
+    "link_clicks_count",
+  ];
+
+  for (var i = 1; i <= SLIDE_COUNT; i++) {
+    headers.push("slide_" + i + "_sec");
+    headers.push("slide_" + i + "_visits");
+    headers.push("slide_" + i + "_revisited");
+  }
+
+  headers.push("link_clicks_json");
+  headers.push("event_log_json");
+  headers.push("source");
+  headers.push("user_agent");
+
+  return headers;
+}
+
 function doPost(e) {
   try {
-    const raw =
+    var raw =
       (e && e.postData && e.postData.contents) ||
       (e && e.parameter && e.parameter.payload) ||
       "";
@@ -46,11 +72,32 @@ function doPost(e) {
       return jsonResponse_(false, "Empty request body.");
     }
 
-    const data = JSON.parse(raw);
-    appendRow_(data);
-    sendNotificationEmail_(data);
+    var data = JSON.parse(raw);
+    var type = data.type || "";
 
-    return jsonResponse_(true, "Deck access recorded.");
+    if (
+      type !== "session_start" &&
+      type !== "session_sync" &&
+      type !== "session_complete"
+    ) {
+      return jsonResponse_(false, "Unsupported payload type.");
+    }
+
+    if (!isValidEmail_(data.email)) {
+      return jsonResponse_(false, "Invalid email address.");
+    }
+
+    if (!data.session_id) {
+      return jsonResponse_(false, "Missing session_id.");
+    }
+
+    upsertSessionRow_(data);
+
+    if (type === "session_complete") {
+      sendNotificationEmail_(data);
+    }
+
+    return jsonResponse_(true, "Session " + type.replace("session_", "") + ".");
   } catch (err) {
     console.error(err);
     return jsonResponse_(false, String(err));
@@ -58,55 +105,150 @@ function doPost(e) {
 }
 
 function doGet() {
-  return jsonResponse_(true, "Deck access endpoint is live.");
+  return jsonResponse_(true, "Deck session endpoint is live.");
 }
 
 function getSheet_() {
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  let sheet = ss.getSheetByName(SHEET_NAME);
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName(SHEET_NAME);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
   }
   return sheet;
 }
 
-function appendRow_(data) {
-  const sheet = getSheet_();
+function isValidEmail_(email) {
+  if (!email || typeof email !== "string") return false;
+  email = email.trim();
+  if (email.length > 254) return false;
+  return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(
+    email
+  );
+}
+
+function findSessionRowIndex_(sessionId) {
+  var sheet = getSheet_();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return -1;
+
+  var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  for (var i = ids.length - 1; i >= 0; i--) {
+    if (String(ids[i][0]) === String(sessionId)) {
+      return i + 2;
+    }
+  }
+  return -1;
+}
+
+function getSlideMetrics_(data, slideNum) {
+  var slides = data.slides || {};
+  var slide = slides[String(slideNum)] || slides[slideNum] || {};
+  return {
+    timeSec: Number(slide.time_sec) || 0,
+    visits: Number(slide.visits) || 0,
+    revisited: slide.revisited === true || Number(slide.visits) > 1,
+  };
+}
+
+function buildSlidesRevisited_(data) {
+  var slidesRevisited = data.slides_revisited || [];
+  if (!slidesRevisited.length && data.slides) {
+    slidesRevisited = Object.keys(data.slides).filter(function (key) {
+      var slide = data.slides[key];
+      return slide && (slide.revisited === true || Number(slide.visits) > 1);
+    });
+  }
+  return slidesRevisited;
+}
+
+function buildRowFromData_(data) {
+  var slidesRevisited = buildSlidesRevisited_(data);
+  var linkClicks = data.link_clicks || [];
+  var row = [
+    data.session_id || "",
+    String(data.email || "").trim(),
+    data.session_start || "",
+    data.session_end || "",
+    data.last_sync_at || new Date().toISOString(),
+    data.session_status || "active",
+    Number(data.total_duration_sec) || 0,
+    slidesRevisited.join(", "),
+    linkClicks.length,
+  ];
+
+  for (var i = 1; i <= SLIDE_COUNT; i++) {
+    var metrics = getSlideMetrics_(data, i);
+    row.push(metrics.timeSec);
+    row.push(metrics.visits);
+    row.push(metrics.revisited ? "Y" : "N");
+  }
+
+  row.push(JSON.stringify(linkClicks));
+  row.push(JSON.stringify(data.event_log || []));
+  row.push(data.source || "");
+  row.push(data.user_agent || "");
+
+  return row;
+}
+
+function upsertSessionRow_(data) {
+  var sheet = getSheet_();
   if (sheet.getLastRow() === 0) {
     setupSheet();
   }
 
-  const row = [
-    data.timestamp || new Date().toISOString(),
-    data.email || "",
-    data.session_id || "",
-    data.source || "",
-    data.user_agent || "",
-  ];
+  var row = buildRowFromData_(data);
+  var rowIndex = findSessionRowIndex_(data.session_id);
 
-  sheet.appendRow(row);
+  if (rowIndex > 0) {
+    sheet.getRange(rowIndex, 1, rowIndex, row.length).setValues([row]);
+  } else {
+    sheet.appendRow(row);
+  }
 }
 
 function sendNotificationEmail_(data) {
-  const lines = [
-    "New investor deck access.",
+  var slidesRevisited = buildSlidesRevisited_(data);
+  var linkClicks = data.link_clicks || [];
+  var lines = [
+    "Investor deck session completed.",
     "",
-    "Email: " + (data.email || "(not provided)"),
     "Session ID: " + (data.session_id || "—"),
-    "Timestamp: " + (data.timestamp || new Date().toISOString()),
-    "Source: " + (data.source || "—"),
-    "User agent: " + (data.user_agent || "—"),
+    "Email: " + (data.email || "—"),
+    "Started: " + (data.session_start || "—"),
+    "Ended: " + (data.session_end || "—"),
+    "Total duration (sec): " + (Number(data.total_duration_sec) || 0),
+    "Slides revisited: " + (slidesRevisited.length ? slidesRevisited.join(", ") : "none"),
+    "Link clicks: " + linkClicks.length,
+    "",
+    "See full row in Google Sheet tab \"" + SHEET_NAME + "\".",
   ];
+
+  if (linkClicks.length) {
+    lines.push("", "Link clicks:");
+    linkClicks.forEach(function (click, index) {
+      lines.push(
+        (index + 1) +
+          ". slide " +
+          (click.slide || "?") +
+          " · " +
+          (click.label || "link") +
+          " · @" +
+          (click.slide_sec != null ? click.slide_sec + "s" : "?") +
+          " on slide"
+      );
+    });
+  }
 
   MailApp.sendEmail({
     to: EMAIL_TO,
-    subject: "deck access",
+    subject: "deck access · " + (data.session_id || "session"),
     body: lines.join("\n"),
   });
 }
 
 function jsonResponse_(ok, message) {
-  const output = ContentService.createTextOutput(
+  var output = ContentService.createTextOutput(
     JSON.stringify({ ok: ok, message: message })
   );
   output.setMimeType(ContentService.MimeType.JSON);

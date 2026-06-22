@@ -457,13 +457,28 @@ const S = {
   email:'', sessionId:'', sessionStart:null,
   current:1, enterTime:null,
   slideData:{},   // { n: { totalSec, visits } }
-  linkClicks:[],  // { ts, slide, label, url }
+  linkClicks:[],  // { ts, slide, label, url, slide_sec }
   eventLog:[],    // { ts, event, slide, ... }
   closed:false,
+  completeSent:false,
+  idle:false,
   slideTimerSec:0,
 };
 const N = SLIDES.length;
 const MAX_BAR = 120;
+const IDLE_MS = 60000;
+const SYNC_INTERVAL_MS = 15000;
+
+let lastActivityAt = 0;
+let lastSyncAt = 0;
+let syncDebounce = null;
+let wasIdle = false;
+
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+function isValidEmail(email){
+  return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email.trim());
+}
 
 /* ═══════════════════════════════════════════════
    GATE
@@ -474,32 +489,93 @@ document.getElementById('email-in').addEventListener('keydown', e => { if(e.key=
 function tryAccess(){
   const email = document.getElementById('email-in').value.trim();
   const err = document.getElementById('email-err');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.style.display='block'; return; }
+  if(!isValidEmail(email)){ err.style.display='block'; return; }
   err.style.display='none';
   S.email = email;
   S.sessionId = 'ses_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
   S.sessionStart = new Date();
   for(let i=1;i<=N;i++) S.slideData[i]={totalSec:0,visits:0};
-  logDeckAccess(email);
+  markActivity();
   launchViewer();
 }
 
-function logDeckAccess(email){
-  if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes('PASTE_DECK_ACCESS')) return;
-  const payload = {
-    type: 'deck_access',
-    email,
+function markActivity(){
+  lastActivityAt = Date.now();
+  if(S.idle){
+    S.idle = false;
+    wasIdle = false;
+    logEvent('resume', S.current, {});
+    queueSync();
+  }
+}
+
+function buildSessionPayload(type){
+  const now = new Date();
+  const slides = {};
+  const slidesRevisited = [];
+
+  for(let i=1;i<=N;i++){
+    const visits = S.slideData[i].visits;
+    const revisited = visits > 1;
+    slides[i] = {
+      time_sec: S.slideData[i].totalSec,
+      visits,
+      revisited,
+    };
+    if(revisited) slidesRevisited.push(i);
+  }
+
+  return {
+    type,
     session_id: S.sessionId,
-    timestamp: S.sessionStart.toISOString(),
+    email: S.email,
+    session_start: S.sessionStart.toISOString(),
+    session_end: type === 'session_complete' ? now.toISOString() : '',
+    last_sync_at: now.toISOString(),
+    session_status: type === 'session_complete' ? 'complete' : (S.idle ? 'idle' : 'active'),
+    total_duration_sec: Math.round((now - S.sessionStart) / 1000),
+    slides,
+    slides_revisited: slidesRevisited,
+    link_clicks: S.linkClicks,
+    event_log: S.eventLog,
     source: location.href,
     user_agent: navigator.userAgent,
   };
+}
+
+function syncSession(type, useBeacon){
+  if(!S.sessionStart || !S.email) return;
+  if(!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL.includes('PASTE_DECK_ACCESS')) return;
+  if(type === 'session_complete'){
+    if(S.completeSent) return;
+    S.completeSent = true;
+  } else if(S.closed){
+    return;
+  }
+
+  lastSyncAt = Date.now();
+  const body = JSON.stringify(buildSessionPayload(type));
+
+  if(useBeacon && navigator.sendBeacon){
+    navigator.sendBeacon(
+      GOOGLE_APPS_SCRIPT_URL,
+      new Blob([body], { type: 'text/plain;charset=utf-8' })
+    );
+    return;
+  }
+
   fetch(GOOGLE_APPS_SCRIPT_URL, {
     method: 'POST',
     mode: 'no-cors',
+    keepalive: type === 'session_complete',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload),
+    body,
   }).catch(() => {});
+}
+
+function queueSync(){
+  clearTimeout(syncDebounce);
+  syncDebounce = setTimeout(() => syncSession('session_sync', false), 400);
 }
 
 /* ═══════════════════════════════════════════════
@@ -524,6 +600,7 @@ function launchViewer(){
   startTimers();
   enterSlide(1);
   updateControls();
+  syncSession('session_start', false);
 }
 
 function buildSlides(){
@@ -579,10 +656,18 @@ function buildLinkZones(){
 }
 
 function handleLinkClick(z){
+  markActivity();
   const ts = new Date().toISOString();
-  S.linkClicks.push({ts, slide:z.slide, label:z.label, url:z.url});
-  logEvent('link_click', z.slide, {label:z.label, url:z.url});
+  S.linkClicks.push({
+    ts,
+    slide: z.slide,
+    label: z.label,
+    url: z.url,
+    slide_sec: S.slideTimerSec,
+  });
+  logEvent('link_click', z.slide, { label: z.label, url: z.url, slide_sec: S.slideTimerSec });
   document.getElementById('t-links').textContent = S.linkClicks.length;
+  queueSync();
   window.open(z.url,'_blank','noopener');
 }
 
@@ -602,8 +687,11 @@ function buildDots(){
    ═══════════════════════════════════════════════ */
 function goTo(n){
   if(n<1||n>N||n===S.current) return;
-  leaveSlide(S.current);
-  const fromEl = getSlideEl(S.current);
+  markActivity();
+  const from = S.current;
+  const direction = n > from ? 'forward' : 'back';
+  leaveSlide(from);
+  const fromEl = getSlideEl(from);
   if(fromEl){ fromEl.classList.remove('active'); fromEl.style.display=''; }
 
   S.current = n;
@@ -614,14 +702,17 @@ function goTo(n){
     requestAnimationFrame(()=>{ toEl.classList.remove('entering'); toEl.classList.add('active'); });
   }
 
+  logEvent('navigate', n, { from, direction });
+
   // Link zones
   document.querySelectorAll('.link-zone').forEach(z=>{
     z.style.display = Number(z.dataset.slide)===n ? 'block' : 'none';
   });
 
-  enterSlide(n);
+  enterSlide(n, { direction, from });
   updateControls();
   updateDots();
+  queueSync();
 }
 
 function getSlideEl(n){
@@ -630,11 +721,16 @@ function getSlideEl(n){
   );
 }
 
-function enterSlide(n){
+function enterSlide(n, nav={}){
   S.enterTime = Date.now();
   S.slideData[n].visits++;
+  const revisit = S.slideData[n].visits > 1;
   S.slideTimerSec=0;
-  logEvent('enter',n);
+  logEvent(revisit ? 'revisit' : 'enter', n, {
+    visit: S.slideData[n].visits,
+    direction: nav.direction || 'start',
+    from: nav.from,
+  });
   document.getElementById('t-slide').textContent=`Slide ${n}`;
   // show link zones for current slide
   document.querySelectorAll('.link-zone').forEach(z=>{
@@ -643,9 +739,7 @@ function enterSlide(n){
 }
 
 function leaveSlide(n){
-  const elapsed = Math.round((Date.now()-S.enterTime)/1000);
-  S.slideData[n].totalSec += elapsed;
-  logEvent('leave',n,{durationSec:elapsed});
+  logEvent('leave', n, { durationSec: S.slideTimerSec });
 }
 
 function bindNav(){
@@ -657,8 +751,8 @@ function bindNav(){
 
 function bindKeys(){
   document.addEventListener('keydown',e=>{
-    if(['ArrowRight','ArrowDown'].includes(e.key)) goTo(S.current+1);
-    if(['ArrowLeft','ArrowUp'].includes(e.key)) goTo(S.current-1);
+    if(['ArrowRight','ArrowDown'].includes(e.key)){ markActivity(); goTo(S.current+1); }
+    if(['ArrowLeft','ArrowUp'].includes(e.key)){ markActivity(); goTo(S.current-1); }
     if(e.key==='t'||e.key==='T') toggleTele();
   });
 }
@@ -695,10 +789,30 @@ function updateDots(){
    TIMERS
    ═══════════════════════════════════════════════ */
 function startTimers(){
+  lastActivityAt = Date.now();
   setInterval(()=>{
-    S.slideTimerSec++;
-    document.getElementById('time-lbl').textContent=S.slideTimerSec+'s';
-    document.getElementById('time-fill').style.width=Math.min(100,(S.slideTimerSec/MAX_BAR)*100)+'%';
+    if(S.closed || !S.sessionStart) return;
+
+    const now = Date.now();
+    S.idle = now - lastActivityAt > IDLE_MS;
+
+    if(S.idle && !wasIdle){
+      wasIdle = true;
+      logEvent('idle', S.current, {});
+      syncSession('session_sync', false);
+    }
+
+    if(!S.idle){
+      S.slideData[S.current].totalSec += 1;
+      S.slideTimerSec++;
+      document.getElementById('time-lbl').textContent=S.slideTimerSec+'s';
+      document.getElementById('time-fill').style.width=Math.min(100,(S.slideTimerSec/MAX_BAR)*100)+'%';
+
+      if(now - lastSyncAt >= SYNC_INTERVAL_MS){
+        syncSession('session_sync', false);
+      }
+    }
+
     updateTeleTotal();
   },1000);
 }
@@ -710,13 +824,20 @@ function updateTeleTotal(){
 /* ═══════════════════════════════════════════════
    SESSION CLOSE
    ═══════════════════════════════════════════════ */
-window.addEventListener('beforeunload', closeSession);
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') closeSession(); });
-function closeSession(){
-  if(S.closed||!S.sessionStart) return;
-  S.closed=true;
+window.addEventListener('beforeunload', finalizeSession);
+window.addEventListener('pagehide', finalizeSession);
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden' && S.sessionStart && !S.closed){
+    syncSession('session_sync', true);
+  }
+});
+
+function finalizeSession(){
+  if(S.closed || !S.sessionStart) return;
+  S.closed = true;
   leaveSlide(S.current);
-  logEvent('session_end',S.current);
+  logEvent('session_end', S.current);
+  syncSession('session_complete', true);
 }
 
 /* ═══════════════════════════════════════════════
@@ -730,6 +851,10 @@ function logEvent(event,slide,extra={}){
   row.className='tele-entry';
   let txt=`${new Date().toLocaleTimeString()} · ${event} · s${slide}`;
   if(extra.durationSec!==undefined) txt+=` · ${extra.durationSec}s`;
+  if(extra.slide_sec!==undefined) txt+=` · @${extra.slide_sec}s`;
+  if(extra.direction) txt+=` · ${extra.direction}`;
+  if(extra.from!==undefined) txt+=` · from s${extra.from}`;
+  if(extra.visit!==undefined) txt+=` · visit #${extra.visit}`;
   if(extra.label) txt+=` · ${extra.label}`;
   row.textContent=txt;
   el.prepend(row);
