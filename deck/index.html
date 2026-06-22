@@ -485,6 +485,11 @@ function isValidEmail(email){
   return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email.trim());
 }
 
+function setTele(id, value){
+  const el = document.getElementById(id);
+  if(el) el.textContent = value;
+}
+
 /* ═══════════════════════════════════════════════
    GATE
    ═══════════════════════════════════════════════ */
@@ -592,8 +597,8 @@ function launchViewer(){
   v.style.flexDirection='column';
   requestAnimationFrame(() => stageMatrix?.resize());
 
-  document.getElementById('t-email')?.textContent = S.email;
-  document.getElementById('t-start')?.textContent = S.sessionStart.toLocaleTimeString();
+  setTele('t-email', S.email);
+  setTele('t-start', S.sessionStart.toLocaleTimeString());
 
   buildSlides();
   buildDots();
@@ -671,7 +676,7 @@ function handleLinkClick(z){
     slide_sec: S.slideTimerSec,
   });
   logEvent('link_click', z.slide, { label: z.label, url: z.url, slide_sec: S.slideTimerSec });
-  document.getElementById('t-links')?.textContent = S.linkClicks.length;
+  setTele('t-links', S.linkClicks.length);
   syncSession('session_sync', false);
   window.open(z.url,'_blank','noopener');
 }
@@ -736,7 +741,7 @@ function enterSlide(n, nav={}){
     direction: nav.direction || 'start',
     from: nav.from,
   });
-  document.getElementById('t-slide')?.textContent=`Slide ${n}`;
+  setTele('t-slide', `Slide ${n}`);
   // show link zones for current slide
   document.querySelectorAll('.link-zone').forEach(z=>{
     z.style.display = Number(z.dataset.slide)===n ? 'block' : 'none';
@@ -835,7 +840,7 @@ function startTimers(){
 }
 function updateTeleTotal(){
   const t=Math.round((Date.now()-S.sessionStart)/1000);
-  document.getElementById('t-total')?.textContent=`${Math.floor(t/60)}m ${t%60}s`;
+  setTele('t-total', `${Math.floor(t/60)}m ${t%60}s`);
 }
 
 /* ═══════════════════════════════════════════════
