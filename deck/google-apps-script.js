@@ -1,23 +1,3 @@
-/**
- * Cognitronics — Investor deck session analytics (incremental sync)
- *
- * Deploy as a separate Google Apps Script Web App (not thesis-validation):
- * 1. script.google.com → New project → paste this file.
- * 2. Set SHEET_ID, SHEET_NAME, EMAIL_TO below.
- * 3. Run setupSheet() once (authorize when prompted).
- * 4. Deploy → New deployment → Web app
- *    - Execute as: Me
- *    - Who has access: Anyone
- * 5. Copy the /exec URL into deck/index.html → GOOGLE_APPS_SCRIPT_URL
- *
- * Frontend POST types:
- *   session_start  — create row (upsert)
- *   session_sync   — update row while reading
- *   session_complete — final update + notification email
- *
- * Content-Type: text/plain avoids CORS preflight.
- */
-
 const SHEET_ID = "1NgvC4bT03PfvqS6qjVoX_m-ltNZ94tOHkw31_YNJRbU";
 const SHEET_NAME = "Deck access";
 const EMAIL_TO = "cognitronics@proton.me";
@@ -91,10 +71,22 @@ function doPost(e) {
       return jsonResponse_(false, "Missing session_id.");
     }
 
-    upsertSessionRow_(data);
+    var wasComplete = upsertSessionRow_(data);
 
-    if (type === "session_complete") {
-      sendNotificationEmail_(data);
+    if (type === "session_start") {
+      try {
+        sendStartNotificationEmail_(data);
+      } catch (mailErr) {
+        console.error("Start email failed:", mailErr);
+      }
+    }
+
+    if (type === "session_complete" && !wasComplete) {
+      try {
+        sendCompleteNotificationEmail_(data);
+      } catch (mailErr) {
+        console.error("Complete email failed:", mailErr);
+      }
     }
 
     return jsonResponse_(true, "Session " + type.replace("session_", "") + ".");
@@ -199,15 +191,39 @@ function upsertSessionRow_(data) {
 
   var row = buildRowFromData_(data);
   var rowIndex = findSessionRowIndex_(data.session_id);
+  var wasComplete = false;
 
   if (rowIndex > 0) {
+    wasComplete = sheet.getRange(rowIndex, 6).getValue() === "complete";
     sheet.getRange(rowIndex, 1, rowIndex, row.length).setValues([row]);
   } else {
     sheet.appendRow(row);
   }
+
+  return wasComplete;
 }
 
-function sendNotificationEmail_(data) {
+function sendStartNotificationEmail_(data) {
+  var lines = [
+    "New investor deck session started.",
+    "",
+    "Session ID: " + (data.session_id || "—"),
+    "Email: " + (data.email || "—"),
+    "Started: " + (data.session_start || data.last_sync_at || "—"),
+    "Source: " + (data.source || "—"),
+    "",
+    "Live row updates in Google Sheet tab \"" + SHEET_NAME + "\".",
+    "A summary email follows when the session ends.",
+  ];
+
+  MailApp.sendEmail({
+    to: EMAIL_TO,
+    subject: "deck access · started · " + (data.session_id || "session"),
+    body: lines.join("\n"),
+  });
+}
+
+function sendCompleteNotificationEmail_(data) {
   var slidesRevisited = buildSlidesRevisited_(data);
   var linkClicks = data.link_clicks || [];
   var lines = [
