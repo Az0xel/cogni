@@ -123,7 +123,7 @@ function findSessionRowIndex_(sessionId) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return -1;
 
-  var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  var ids = sheet.getRange("A2:A" + lastRow).getValues();
   for (var i = ids.length - 1; i >= 0; i--) {
     if (String(ids[i][0]) === String(sessionId)) {
       return i + 2;

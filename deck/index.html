@@ -470,11 +470,10 @@ const S = {
 const N = SLIDES.length;
 const MAX_BAR = 120;
 const IDLE_MS = 60000;
-const SYNC_INTERVAL_MS = 15000;
+const SYNC_INTERVAL_MS = 5000;
 
 let lastActivityAt = 0;
 let lastSyncAt = 0;
-let syncDebounce = null;
 let wasIdle = false;
 
 const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
@@ -508,7 +507,7 @@ function markActivity(){
     S.idle = false;
     wasIdle = false;
     logEvent('resume', S.current, {});
-    queueSync();
+    flushSync();
   }
 }
 
@@ -558,10 +557,13 @@ function syncSession(type, useBeacon){
 
   lastSyncAt = Date.now();
   const body = JSON.stringify(buildSessionPayload(type));
-  const blob = new Blob([body], { type: 'text/plain;charset=utf-8' });
 
-  if(navigator.sendBeacon){
-    navigator.sendBeacon(GOOGLE_APPS_SCRIPT_URL, blob);
+  /* fetch for start/sync (reliable). Beacon only on unload complete. */
+  if(useBeacon && type === 'session_complete' && navigator.sendBeacon){
+    navigator.sendBeacon(
+      GOOGLE_APPS_SCRIPT_URL,
+      new Blob([body], { type: 'text/plain;charset=utf-8' })
+    );
   }
 
   fetch(GOOGLE_APPS_SCRIPT_URL, {
@@ -573,9 +575,8 @@ function syncSession(type, useBeacon){
   }).catch(() => {});
 }
 
-function queueSync(){
-  clearTimeout(syncDebounce);
-  syncDebounce = setTimeout(() => syncSession('session_sync', false), 400);
+function flushSync(){
+  syncSession('session_sync', false);
 }
 
 /* ═══════════════════════════════════════════════
@@ -668,7 +669,7 @@ function handleLinkClick(z){
   });
   logEvent('link_click', z.slide, { label: z.label, url: z.url, slide_sec: S.slideTimerSec });
   document.getElementById('t-links').textContent = S.linkClicks.length;
-  queueSync();
+  flushSync();
   window.open(z.url,'_blank','noopener');
 }
 
@@ -713,7 +714,7 @@ function goTo(n){
   enterSlide(n, { direction, from });
   updateControls();
   updateDots();
-  queueSync();
+  flushSync();
 }
 
 function getSlideEl(n){
@@ -812,7 +813,7 @@ function startTimers(){
     if(S.idle && !wasIdle){
       wasIdle = true;
       logEvent('idle', S.current, {});
-      syncSession('session_sync', false);
+      flushSync();
     }
 
     if(!S.idle){
@@ -822,7 +823,7 @@ function startTimers(){
       document.getElementById('time-fill').style.width=Math.min(100,(S.slideTimerSec/MAX_BAR)*100)+'%';
 
       if(now - lastSyncAt >= SYNC_INTERVAL_MS){
-        syncSession('session_sync', false);
+        flushSync();
       }
     }
 
