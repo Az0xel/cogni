@@ -1,0 +1,5 @@
+# cognitronics.site — main landing (default Netlify site)
+# UI: Base directory = (empty), Publish directory = .
+
+[build]
+  publish = "."

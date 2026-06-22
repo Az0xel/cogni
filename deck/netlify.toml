@@ -1,0 +1,10 @@
+# deck.cognitronics.site — investor deck (second Netlify site, same repo)
+# UI: Base directory = deck, Publish directory = . (this folder)
+
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/deck.html"
+  to = "/"
+  status = 301
