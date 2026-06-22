@@ -1,0 +1,5 @@
+# dataroom.cognitronics.site — unlocked data room (third Netlify site, same repo)
+# UI: Base directory = data_room, Publish directory = .
+
+[build]
+  publish = "."
