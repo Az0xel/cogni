@@ -169,6 +169,7 @@ a{color:inherit;text-decoration:none;}
   display:flex;flex-direction:column;gap:.875rem;}
 .folder-card:hover{background:var(--surface-off);border-color:rgba(57,208,145,.3);transform:translateY(-1px);}
 .folder-icon{width:40px;height:40px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin:0 auto;}
+.folder-icon svg{width:20px;height:20px;flex-shrink:0;}
 .folder-name{font-size:var(--sm);font-weight:600;}
 .folder-count{font-size:var(--xs);color:var(--text-faint);}
 
@@ -271,10 +272,24 @@ a{color:inherit;text-decoration:none;}
     margin-left:auto;margin-right:auto;
   }
   .folder-grid .folder-card{
+    container-type:inline-size;
+    container-name:folder-card;
     aspect-ratio:1;
     justify-content:center;
     align-items:center;
     text-align:center;
+    gap:clamp(0.625rem,4cqw,1.25rem);
+    padding:clamp(0.875rem,6cqw,1.5rem);
+  }
+  @container folder-card (min-width:120px){
+    .folder-icon{
+      width:clamp(40px,24cqw,72px);
+      height:clamp(40px,24cqw,72px);
+      border-radius:clamp(var(--r-sm),2.5cqw,var(--r-lg));
+    }
+    .folder-icon svg{width:58%;height:58%;}
+    .folder-name{font-size:clamp(0.875rem,4.8cqw,1.25rem);}
+    .folder-count{font-size:clamp(0.75rem,3.6cqw,1rem);margin-top:clamp(0.125rem,1cqw,0.375rem);}
   }
 }
 @media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
@@ -446,7 +461,7 @@ const FOLDERS = [
   {
     id:'business', name:'Business',
     color:'#39d091', bg:'rgba(57,208,145,0.12)',
-    icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#39d091" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
+    icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#39d091" stroke-width="1.8"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`,
     items:[
       { id:'validation-thesis', name:'Validation Thesis',  kind:'page',  meta:'Interactive overview', pageId:'validation-thesis' },
       { id:'exec-summary',      name:'Executive Summary',  kind:'pdf',   meta:'PDF · 340 KB',         url:'docs/executive-summary.pdf' },
@@ -458,7 +473,7 @@ const FOLDERS = [
   {
     id:'corporate', name:'Corporate',
     color:'#22c55e', bg:'rgba(34,197,94,0.1)',
-    icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+    icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
     items:[
       { id:'cert-incorp',   name:'Certificate of Incorporation', kind:'pdf', meta:'PDF · 210 KB', url:'docs/certificate-incorporation.pdf' },
       { id:'bylaws',        name:'Bylaws',                       kind:'pdf', meta:'PDF · 180 KB', url:'docs/bylaws.pdf' },
@@ -471,7 +486,7 @@ const FOLDERS = [
   {
     id:'fundraise', name:'Fundraise',
     color:'#f59e0b', bg:'rgba(245,158,11,0.1)',
-    icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+    icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
     items:[
       { id:'fundraise-summary', name:'Fundraise Overview',  kind:'page', meta:'Interactive page', pageId:'fundraise-summary' },
       { id:'safe-tier-1',       name:'SAFE — Tier 1',       kind:'pdf',  meta:'PDF · Early cap',  url:'docs/Cognitronics-SAFE-T1.pdf' },
@@ -482,7 +497,7 @@ const FOLDERS = [
   {
     id:'financials', name:'Financials',
     color:'#ec4899', bg:'rgba(236,72,153,0.1)',
-    icon:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
     items:[
       { id:'use-of-funds',    name:'Use of Funds',              kind:'page', meta:'Interactive page',  pageId:'use-of-funds' },
       { id:'financial-model', name:'Financial Model (18–24mo)', kind:'pdf',  meta:'PDF · 620 KB',      url:'docs/financial-model.pdf' },
