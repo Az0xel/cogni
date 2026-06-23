@@ -202,6 +202,15 @@ a{color:inherit;text-decoration:none;}
 .page-body{font-size:var(--sm);color:var(--text-muted);line-height:1.8;}
 .page-body p{margin-bottom:1rem;}
 .page-body p:last-child{margin-bottom:0;}
+.page-back-wrap{display:flex;justify-content:center;margin-top:2.5rem;padding-bottom:0.5rem;}
+.page-back-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:5.5rem;height:5.5rem;
+  background:var(--surface);border:2px solid #39d091;border-radius:30%;
+  color:#39d091;font-size:var(--sm);font-weight:600;letter-spacing:0.08em;
+  transition:background var(--ease);
+}
+.page-back-btn:hover{background:var(--primary-hi);}
 .page-kv{display:grid;grid-template-columns:auto 1fr;gap:.5rem 1.5rem;margin-top:1rem;}
 .page-kv dt{font-size:var(--xs);color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding-top:.15rem;}
 .page-kv dd{font-size:var(--sm);color:var(--text);}
@@ -253,8 +262,32 @@ a{color:inherit;text-decoration:none;}
   .folder-grid{grid-template-columns:1fr 1fr;}
 }
 
-@media(max-width:760px){
-  .folder-grid{grid-template-columns:repeat(2,1fr)!important;}
+@media(min-width:601px) and (max-width:1024px){
+  .folder-grid{
+    grid-template-columns:repeat(2,1fr);
+    margin-left:auto;margin-right:auto;
+  }
+  .folder-grid .folder-card{
+    aspect-ratio:1;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+  }
+}
+@media(min-width:601px) and (max-width:1024px) and (orientation:portrait){
+  .folder-grid{width:60vw;}
+}
+@media(min-width:601px) and (max-width:1024px) and (orientation:landscape){
+  .folder-grid{width:45vw;}
+}
+@media(min-width:1025px){
+  .room-body:has(.folder-grid){max-width:none;}
+  .folder-grid{
+    width:70vw;
+    max-width:none;
+    margin-left:auto;margin-right:auto;
+    grid-template-columns:repeat(4,1fr);
+  }
 }
 </style>
 </head>
@@ -855,7 +888,14 @@ function openPage(item,folder){
     html+=`<div class="page-section"><div class="page-section-title">${s.title}</div><div class="page-body">${s.body}</div></div>`;
   });
 
+  html+=`<div class="page-back-wrap"><button type="button" class="page-back-btn" id="page-back-btn">BACK</button></div>`;
+
   pc.innerHTML=html;
+  document.getElementById('page-back-btn').addEventListener('click', () => {
+    markActivity();
+    logEvent('page_back', folder.id, { item: item.id, name: item.name });
+    openFolder(folder);
+  });
   enterView('page:'+item.id);
   flushSync();
 }
