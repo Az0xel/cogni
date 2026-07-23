@@ -94,6 +94,24 @@ a{color:inherit;text-decoration:none;}
   background:rgba(0,0,0,0.35);pointer-events:none;
 }
 
+/* Text over matrix — 2px black stroke @ 80% for legibility */
+.matrix-text-stroke{
+  -webkit-text-stroke:2px rgba(0,0,0,.8);
+  paint-order:stroke fill;
+}
+#room :is(
+  .section-title,.section-sub,
+  .page-title,.page-lead,.page-section-title,
+  .page-body,.page-body p,.page-body li,.page-body strong,
+  .page-kv dt,.page-kv dd,
+  .team-group-label,.team-footer,
+  .val-label,.val-thesis,.val-lead,.val-card-title,.val-card-body,
+  .val-ref-title,.val-milestone-title,.val-stage-title,.val-footer
+){
+  -webkit-text-stroke:2px rgba(0,0,0,.8);
+  paint-order:stroke fill;
+}
+
 /* ── GATE ── */
 #gate{
   position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
@@ -238,7 +256,170 @@ a{color:inherit;text-decoration:none;}
 .safe-tier-desc{font-size:var(--xs);color:var(--text-muted);margin-top:.2rem;}
 .safe-tier-cap{font-size:var(--lg);font-family:var(--font-d);color:var(--primary);white-space:nowrap;}
 
-/* Footer */
+/* Team page */
+.team-groups{display:flex;flex-direction:column;gap:0.25rem;}
+.team-group-label{
+  font-size:var(--xs);color:var(--text-faint);text-transform:uppercase;
+  letter-spacing:0.08em;font-weight:600;margin:1.5rem 0 0.75rem;
+}
+.team-group-label:first-child{margin-top:0.25rem;}
+.team-list{display:flex;flex-direction:column;gap:0.875rem;}
+.team-member{
+  position:relative;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.25rem;display:flex;gap:1.125rem;text-align:left;
+}
+.team-photo-wrap{
+  flex-shrink:0;align-self:flex-start;display:flex;align-items:flex-start;
+}
+.team-photo{
+  display:block;width:auto;height:auto;
+  max-height:168px;max-width:112px;
+  object-fit:contain;object-position:top center;
+  border:none;background:transparent;border-radius:0;
+}
+.team-photo-ph{
+  min-width:4rem;font-size:var(--sm);font-weight:600;letter-spacing:0.04em;
+  background:transparent;border:none;padding:0;
+}
+.team-main{flex:1;min-width:0;}
+.team-head{display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;}
+.team-id{display:flex;align-items:center;gap:0.5rem;min-width:0;}
+.team-mark{
+  width:10px;height:10px;border-radius:2px;transform:rotate(45deg);flex-shrink:0;
+  box-shadow:0 0 0 1px currentColor;
+}
+.team-code{font-size:var(--base);font-weight:700;letter-spacing:0.04em;line-height:1.2;}
+.team-role{font-size:var(--sm);color:var(--text-muted);margin-top:0.2rem;line-height:1.45;}
+.team-skills{font-size:var(--xs);margin-top:0.45rem;line-height:1.55;}
+.team-bio{font-size:var(--sm);color:var(--text);margin-top:0.5rem;line-height:1.55;}
+.team-links{
+  position:absolute;top:1rem;right:1rem;
+  display:flex;flex-wrap:wrap;gap:0.35rem;justify-content:flex-end;
+  z-index:1;
+}
+.team-link{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--member-accent,#39d091) 10%,transparent);
+  border:1px solid color-mix(in srgb,var(--member-accent,#39d091) 35%,transparent);
+  color:var(--member-accent,#39d091);
+  transition:background var(--ease),border-color var(--ease),color var(--ease);
+}
+.team-link:hover{
+  background:color-mix(in srgb,var(--member-accent,#39d091) 18%,transparent);
+  border-color:color-mix(in srgb,var(--member-accent,#39d091) 55%,transparent);
+}
+.team-link svg{width:13px;height:13px;}
+.team-supporting{
+  margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid var(--divider);
+}
+.team-supporting-label{
+  font-size:var(--xs);color:var(--text-faint);text-transform:uppercase;
+  letter-spacing:0.06em;font-weight:600;margin-bottom:0.35rem;
+}
+.team-supporting p{font-size:var(--xs);color:var(--text-muted);line-height:1.65;}
+.team-footer{
+  margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--divider);
+  font-size:var(--sm);color:var(--text-muted);line-height:1.75;text-align:left;
+}
+@media(max-width:600px){
+  .team-member{flex-direction:column;align-items:center;text-align:center;padding-top:3rem;}
+  .team-head{flex-direction:column;align-items:center;}
+  .team-id{flex-direction:column;}
+  .team-links{top:0.75rem;right:0.75rem;}
+}
+
+/* Validation thesis page */
+.val-wrap{display:flex;flex-direction:column;gap:0;text-align:left;}
+.val-block{margin-top:2rem;padding-top:2rem;border-top:1px solid var(--divider);}
+.val-block:first-child{margin-top:0;padding-top:0;border-top:none;}
+.val-label{
+  font-size:var(--xs);color:var(--primary);text-transform:uppercase;
+  letter-spacing:0.08em;font-weight:600;margin-bottom:0.75rem;
+}
+.val-thesis{font-size:var(--base);color:var(--text);line-height:1.75;font-style:italic;margin-bottom:1rem;}
+.val-lead{font-size:var(--sm);color:var(--text-muted);line-height:1.7;margin-bottom:1rem;}
+.val-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;}
+.val-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1.125rem;
+}
+.val-card--accent{border-color:color-mix(in srgb,var(--val-accent,#39d091) 40%,var(--border));}
+.val-card-tag{
+  font-size:var(--xs);color:var(--val-accent,#39d091);text-transform:uppercase;
+  letter-spacing:0.06em;font-weight:600;margin-bottom:0.5rem;
+}
+.val-card-title{font-size:var(--sm);font-weight:600;color:var(--text);line-height:1.45;margin-bottom:0.5rem;}
+.val-card-body{font-size:var(--xs);color:var(--text-muted);line-height:1.65;}
+.val-card-body ul{margin:0.35rem 0 0 1rem;}
+.val-card-body li{margin-bottom:0.3rem;}
+.val-refs{display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem;}
+.val-ref{
+  display:flex;flex-direction:column;gap:0.15rem;padding:0.75rem 0.875rem;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-md);
+  text-decoration:none;color:inherit;transition:border-color var(--ease),background var(--ease);
+}
+.val-ref:hover{border-color:rgba(57,208,145,.35);background:var(--surface-off);}
+.val-ref-title{font-size:var(--xs);font-weight:600;color:var(--text);line-height:1.5;}
+.val-ref-meta{font-size:var(--xs);color:var(--text-faint);}
+.val-timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;}
+.val-milestone{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:1rem;text-align:center;
+}
+.val-milestone-year{font-size:var(--lg);font-family:var(--font-d);color:var(--val-accent,#39d091);}
+.val-milestone-tag{font-size:var(--xs);color:var(--text-faint);text-transform:uppercase;letter-spacing:0.06em;margin:0.25rem 0 0.5rem;}
+.val-milestone-body{font-size:var(--xs);color:var(--text-muted);line-height:1.55;}
+.val-stack{display:grid;grid-template-columns:1fr auto 1fr;gap:0.75rem;align-items:stretch;}
+.val-stack-col{display:flex;flex-direction:column;gap:0.45rem;}
+.val-stack-head{font-size:var(--xs);text-transform:uppercase;letter-spacing:0.06em;color:var(--text-faint);margin-bottom:0.35rem;}
+.val-stack-item{
+  font-size:var(--xs);padding:0.5rem 0.65rem;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-muted);
+}
+.val-stack-item--add{
+  border-color:color-mix(in srgb,var(--primary) 35%,var(--border));
+  color:var(--text);background:color-mix(in srgb,var(--primary) 8%,var(--surface-2));
+}
+.val-stack-gap{
+  display:flex;align-items:center;justify-content:center;
+  font-size:var(--xs);color:var(--text-faint);writing-mode:vertical-rl;
+  text-transform:uppercase;letter-spacing:0.08em;padding:0 0.25rem;
+}
+.val-pipeline{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.65rem;}
+.val-stage{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:0.875rem;border-top:2px solid var(--val-accent,#39d091);
+}
+.val-stage-num{font-size:var(--xs);color:var(--val-accent,#39d091);font-weight:600;margin-bottom:0.25rem;}
+.val-stage-title{font-size:var(--sm);font-weight:600;color:var(--text);margin-bottom:0.35rem;}
+.val-stage-body{font-size:var(--xs);color:var(--text-muted);line-height:1.55;}
+.val-stage-out{
+  margin-top:0.5rem;font-size:var(--xs);color:var(--text-faint);
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.val-output{
+  margin-top:0.875rem;padding:0.75rem 1rem;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:var(--r-md);
+  font-size:var(--xs);color:var(--text-muted);line-height:1.6;
+}
+.val-output strong{color:#e8a838;}
+.val-proof{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.65rem;}
+.val-signal-list{display:flex;flex-direction:column;gap:0.5rem;}
+.val-signal{
+  font-size:var(--xs);color:var(--text-muted);line-height:1.6;
+  padding-left:0.875rem;border-left:2px solid var(--val-accent,#39d091);
+}
+.val-footer{
+  margin-top:1.5rem;font-size:var(--sm);color:var(--text-muted);
+  line-height:1.75;font-style:italic;
+}
+@media(max-width:720px){
+  .val-grid-2,.val-timeline,.val-stack{grid-template-columns:1fr;}
+  .val-stack-gap{writing-mode:horizontal-tb;padding:0.5rem 0;text-align:center;}
+}
+
 .contact-footer{
   padding:1rem 1.5rem;border-top:1px solid var(--divider);flex-shrink:0;
   display:flex;align-items:center;justify-content:flex-end;
@@ -513,12 +694,83 @@ const FOLDERS = [
 const PAGES = {
   'validation-thesis': {
     title:'Validation Thesis',
-    lead:'Why Cognitronics exists and what market evidence supports the opportunity.',
-    sections:[
-      { title:'The Core Hypothesis', body:`<p>Knowledge workers spend a disproportionate share of their time managing the overhead of AI tools rather than benefiting from them. The problem is not intelligence — it is infrastructure. Cognitronics is built on the premise that a persistent cognitive layer, operating between the user and all AI tools, can eliminate this overhead at the infrastructure level.</p>` },
-      { title:'Evidence Base', body:`<p>Primary research across 47 knowledge workers in AI-adjacent roles (late 2025) showed an average of 2.4 hours per day lost to context-switching, prompt management, and tool orchestration. Secondary sources including McKinsey Global Institute (2025) estimate $4.2T in productivity losses attributable to cognitive fragmentation across global knowledge work.</p>` },
-      { title:'Why Now', body:`<p>LLM APIs reached production-grade reliability in 2024. Agentic frameworks are maturing. Enterprise IT teams are actively seeking orchestration infrastructure. The window for a category-defining infrastructure play is open — and narrowing.</p>` },
-    ]
+    lead:'Why embodied training needs structured capture — and how social signal, academic consensus, and our proof plan converge on Cognex.',
+    validation:{
+      thesis:'Our thesis is confirmed online via social signal and in peer-reviewed literature: semantic gap in demonstrations, data quantity ≠ data quality, and annotation limitations constrain embodied learning.',
+      signals:{
+        social:{
+          label:'Social signal',
+          accent:'#3b82f6',
+          intro:'Industry operators and researchers consistently flag a data starvation crisis — hardware is advancing faster than training-grade embodied data.',
+          quotes:[
+            'Manipulation performance is bottlenecked by high-quality real-world data, not compute alone.',
+            'Teleoperation scales linearly with operator time — raw footage does not compound into reusable structure.',
+            'Physical AI progress is constrained when demonstrations lack intent, affordance, and risk context.',
+          ],
+        },
+        academic:{
+          label:'Academic consensus',
+          accent:'#bab21c',
+          intro:'Peer-reviewed work converges on affordances, contact-rich manipulation, and embodied world models as the path beyond raw perception.',
+          refs:[
+            { title:'RT-Affordance: Affordances are Versatile Intermediate Representations for Robot Manipulation', meta:'arXiv:2411.02704', url:'https://arxiv.org/html/2411.02704v1' },
+            { title:'A Survey on Imitation Learning for Contact-Rich Tasks in Robotics', meta:'arXiv:2506.13498', url:'https://arxiv.org/html/2506.13498v1' },
+            { title:'Physics-Driven Data Generation for Contact-Rich Manipulation via Trajectory Optimization', meta:'RSS 2025 · Paper 053', url:'https://www.roboticsproceedings.org/rss21/p053.pdf' },
+            { title:'Embodied world models & scalable robotic learning', meta:'OpenReview', url:'https://openreview.net/forum?id=W0AY49wWrb' },
+            { title:'Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI', meta:'arXiv:2407.06886', url:'https://arxiv.org/html/2407.06886v1' },
+            { title:'Visual Affordance Prediction: Survey and Reproducibility', meta:'arXiv:2505.05074', url:'https://arxiv.org/pdf/2505.05074' },
+            { title:'AFUN: Towards an Affordance Foundation Model for Functionality Understanding', meta:'arXiv:2606.02551', url:'https://arxiv.org/html/2606.02551v1' },
+          ],
+        },
+      },
+      timing:{
+        label:'Market timing',
+        headline:'Humanoid training is entering the stack-decision window',
+        sub:'As humanoids move from demos to real-world tasks, manufacturers need better training data — not just more footage.',
+        milestones:[
+          { year:'2026', tag:'Early deployments', body:'Teleoperation data and lab demonstration expand.', color:'#39d091' },
+          { year:'2027', tag:'Home pilots', body:'Unstructured environments expose data-quality gaps.', color:'#39d091' },
+          { year:'2028', tag:'Consumer race', body:'Training pipelines and middleware choices harden.', color:'#39d091' },
+        ],
+        observations:[
+          { tag:'Stack signal', accent:'#06b6d4', body:'The manufacturer Mind is being built — perception and planning layers are active.' },
+          { tag:'Missing layer', accent:'#a855f7', body:'Persistent memory, personalization, and structured embodied data remain unresolved.' },
+        ],
+        meta:['Window: 12–18 months', 'Goal: reference implementation', 'Risk: stacks harden'],
+      },
+      problem:{
+        label:'The problem',
+        headline:'Perception is not training-grade cognition',
+        sub:'Raw demonstrations show what happened, but not what the robot should learn.',
+        points:[
+          'Raw teleoperation data is expensive and unstructured.',
+          'Demonstrations scale linearly with operator time.',
+          'Basic perception outputs (object, location, confidence) lack task intent, affordance, and risk context.',
+        ],
+        closing:'First-generation humanoids will need extensive re-training to adapt to new environments. The gap is context awareness — not another vision model.',
+      },
+      gap:{
+        label:'Missing middleware',
+        headline:'The missing layer is not another LLM',
+        sub:'Humanoid training needs structured embodied data: action, intent, affordance, risk, and constraints.',
+        present:['Vision', 'Basic audio', 'Spatial mapping', 'Action / planning', 'Raw video', 'Sensor logs'],
+        added:['Cognex structured capture', 'Affordance labels', 'Risk annotations', 'Trajectory constraints', 'Human validation', 'Simulation-ready export'],
+        position:'Cognitronics does not replace the manufacturer Mind. The Cognex layer gives it high-quality embodied training data with optimised semantic density per trajectory.',
+      },
+      proof:{
+        label:'Eighteen-month proof plan',
+        headline:'The raise funds proof, not scale',
+        sub:'Pre-seed capital buys proof density: working capture, structured datasets, simulation scale-out, benchmark evidence, and a deployable integration path.',
+        phases:[
+          { range:'M0–M3', title:'Capture', body:'Cognex capture prototype — semantic annotation schema, teleoperation capture flow, first structured embodied-learning sessions.', out:'Annotated task corpus', color:'#3b82f6' },
+          { range:'M3–M6', title:'Structure', body:'Turn teleoperation sessions into a structured embodied dataset pipeline. Scene-graph and affordance generation with information retrieval.', out:'Structured dataset pipeline', color:'#39d091' },
+          { range:'M6–M9', title:'Simulate & test', body:'Expand captured trajectories through MuJoCo simulation, domain randomization, and controlled task-variation testing.', out:'Simulation variant set', color:'#e8a838' },
+          { range:'M9–M12', title:'Benchmark', body:'Measure whether structured Cognex data improves task learning, error reduction, and policy robustness vs. baseline training data.', out:'Measured learning delta', color:'#a855f7' },
+          { range:'M12–M15', title:'Deploy', body:'Connect Cognex outputs to robot middleware through ROS2 interfaces, runtime schemas, and deployment-ready policy hooks.', out:'Deployable integration path', color:'#06b6d4' },
+          { range:'M15–M18', title:'Expand', body:'TrustVault context runtime — embodied memory primitives, owner-controlled context, Jetson-based encrypted runtime validation.', out:'TrustVault enclave demo', color:'#f97316' },
+        ],
+      },
+    },
   },
   'poc-video': {
     title:'POC Demo Video',
@@ -530,11 +782,99 @@ const PAGES = {
   },
   'team': {
     title:'Team',
-    lead:'The people building Cognitronics.',
-    sections:[
-      { title:'Founder', body:`<p>Replace this with your bio, your background, relevant experience, and links to GitHub, Hugging Face, LinkedIn, and academic publications.</p>` },
-      { title:'Advisors & Network', body:`<p>Replace with advisor names, institutions, and areas of expertise. Include any strategic angels or domain experts who have committed to support.</p>` },
-    ]
+    lead:'Initial validation-phase nucleus — the multidisciplinary team assembled to validate Cognex: systems architecture, embodied AI, ROS2, embedded integration, and secure infrastructure.',
+    footer:'Cognex is multidisciplinary by nature: semantic AI + robotics middleware + runtime integration while securing data infrastructure. Our founding team maps those requirements for the zero-to-one.',
+    groups:[
+      {
+        label:'Core team',
+        members:[
+          {
+            code:'THMS',
+            role:'Founder, CEO/COO',
+            skills:'System architecture · cognition infrastructure · cryptography',
+            bio:'Web3Safer founder',
+            color:'#39d091',
+            photo:'media/team/cogteam_thms.png',
+            links:[
+              { type:'web', url:'https://web3safer.com', label:'Web3Safer' },
+              { type:'linkedin', url:'https://www.linkedin.com/in/problem-solveur', label:'LinkedIn' },
+              { type:'github', url:'https://github.com/Az0xel', label:'GitHub' },
+            ],
+            supporting:'Leads Cognex architecture and ops, product strategy, partnerships, TrustVault architecture/programming.',
+          },
+          {
+            code:'JSPH',
+            role:'AI / Robotics engineer',
+            skills:'Machine learning (ML) · ROS2 programme · AI engineer',
+            bio:'HuggingFace contributor',
+            color:'#bab21c',
+            photo:'media/team/cogteam_jsph.png',
+            links:[
+              { type:'huggingface', url:'https://huggingface.co/Tonic', label:'Hugging Face' },
+              { type:'linkedin', url:'https://www.linkedin.com/in/josephpollack/', label:'LinkedIn' },
+              { type:'github', url:'https://github.com/Josephrp', label:'GitHub' },
+            ],
+            supporting:'Leads semantic supervision, dataset tooling, sim/training infra & runtime systems, ROS2 integration.',
+          },
+          {
+            code:'DALI',
+            role:'Applied mathematics & cybersec',
+            skills:'Mathematical systems · telemetry ops · secure infrastructure',
+            bio:'Automobile cybersecurity',
+            color:'#a855f7',
+            photo:'media/team/cogteam_dali.png',
+            links:[
+              { type:'linkedin', url:'https://www.linkedin.com/in/dalilahassaine', label:'LinkedIn' },
+            ],
+            supporting:'Supports teleoperation workflows, structured data validation, annotation systems, TrustVault security architecture.',
+          },
+          {
+            code:'NADR',
+            role:'Embedded sys & robotic integ.',
+            skills:'Embedded systems · electronics · hardware interfaces',
+            bio:'Drones embedded systems engineer',
+            color:'#3b82f6',
+            photo:'media/team/cogteam_nadr.png',
+            links:[
+              { type:'linkedin', url:'https://www.linkedin.com/in/naderg', label:'LinkedIn' },
+            ],
+            supporting:'Leads Jetson runtime integration, robotic hardware interfaces, sensor deployment, and sim-to-real integration.',
+          },
+        ],
+      },
+      {
+        label:'Fractional CTO',
+        members:[
+          {
+            code:'MAXM',
+            role:'Fractional CTO',
+            skills:'System infrastructure and fullstack',
+            bio:'Has helped dozens of startups scale-up successfully.',
+            color:'#06b6d4',
+            photo:'media/team/cogteam_maxm.png',
+            links:[
+              { type:'web', url:'https://hellomax.io/', label:'HelloMax' },
+              { type:'linkedin', url:'https://www.linkedin.com/in/maxime-auburtin', label:'LinkedIn' },
+              { type:'github', url:'https://github.com/manthis', label:'GitHub' },
+            ],
+            supporting:'Infrastructure audits, securing back-end workflows and stack.',
+          },
+        ],
+      },
+      {
+        label:'Planned strategic additions',
+        members:[
+          {
+            title:'Planned strategic additions',
+            role:'Robotic advisor · embodied AI / ML researcher · robotic deployment/operator profile',
+            color:'#8a8a90',
+            photo:'media/team/cogteam_next.png',
+            links:[],
+            supporting:'Sim-to-real validation + manufacturer integrations + Cognex infra scaling.',
+          },
+        ],
+      },
+    ],
   },
   'fundraise-summary': {
     title:'Fundraise Overview',
@@ -890,6 +1230,108 @@ function handleItemClick(item,folder){
 /* ══════════════════════════════════════════
    RENDER INLINE PAGE
    ══════════════════════════════════════════ */
+const TEAM_LINK_ICONS = {
+  web:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+  linkedin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-12h4v2"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`,
+  github:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`,
+  huggingface:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="2"/><circle cx="15" cy="9" r="2"/><path d="M7 14c1.2 1.5 2.8 2 5 2s3.8-.5 5-2"/><path d="M12 22c-4 0-7-3-7-7 0-3.5 2.5-6 5-6h4c2.5 0 5 2.5 5 6 0 4-3 7-7 7z"/></svg>`,
+  mail:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>`,
+};
+
+function renderTeamPhoto(member){
+  const label = member.title || member.code || member.name || '?';
+  if(member.photo){
+    return `<img class="team-photo" src="${member.photo}" alt="${label}" loading="lazy">`;
+  }
+  return `<div class="team-photo-ph" style="color:${member.color}">${String(label).slice(0,4)}</div>`;
+}
+
+function renderTeamLinks(links){
+  const active = (links || []).filter(l => l.url);
+  if(!active.length) return '';
+  return `<div class="team-links">${active.map(l=>{
+    const icon = TEAM_LINK_ICONS[l.type] || TEAM_LINK_ICONS.web;
+    return `<a class="team-link" href="${l.url}" target="_blank" rel="noopener" aria-label="${l.label || l.type}">${icon}</a>`;
+  }).join('')}</div>`;
+}
+
+function renderTeamMember(member){
+  const color = member.color || '#8a8a90';
+  const title = member.title || member.code || member.name || '';
+  const skills = member.skills ? `<div class="team-skills" style="color:${color}">${member.skills}</div>` : '';
+  const bio = member.bio ? `<div class="team-bio">${member.bio}</div>` : '';
+  const links = renderTeamLinks(member.links);
+  return `
+    <article class="team-member" style="--member-accent:${color}">
+      ${links}
+      <div class="team-photo-wrap">${renderTeamPhoto(member)}</div>
+      <div class="team-main">
+        <div class="team-head">
+          <div class="team-id">
+            <span class="team-mark" style="color:${color}"></span>
+            <div>
+              <div class="team-code" style="color:${color}">${title}</div>
+              <div class="team-role">${member.role || ''}</div>
+            </div>
+          </div>
+        </div>
+        ${skills}
+        ${bio}
+        <div class="team-supporting">
+          <div class="team-supporting-label">Supporting</div>
+          <p>${member.supporting || ''}</p>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderValidationPage(v){
+  let html = `<div class="page-section val-wrap">`;
+
+  html += `<div class="val-block"><div class="val-label">Thesis validation signal</div><p class="val-thesis">${v.thesis}</p>`;
+  html += `<div class="val-grid-2">`;
+  html += `<div class="val-card val-card--accent" style="--val-accent:${v.signals.social.accent}"><div class="val-card-tag">${v.signals.social.label}</div><p class="val-lead">${v.signals.social.intro}</p><div class="val-signal-list">${v.signals.social.quotes.map(q=>`<div class="val-signal" style="--val-accent:${v.signals.social.accent}">${q}</div>`).join('')}</div></div>`;
+  html += `<div class="val-card val-card--accent" style="--val-accent:${v.signals.academic.accent}"><div class="val-card-tag">${v.signals.academic.label}</div><p class="val-lead">${v.signals.academic.intro}</p><div class="val-refs">${v.signals.academic.refs.map(r=>`<a class="val-ref" href="${r.url}" target="_blank" rel="noopener"><span class="val-ref-title">${r.title}</span><span class="val-ref-meta">${r.meta}</span></a>`).join('')}</div></div>`;
+  html += `</div></div>`;
+
+  const t = v.timing;
+  html += `<div class="val-block"><div class="val-label">${t.label}</div><div class="val-card-title">${t.headline}</div><p class="val-lead">${t.sub}</p>`;
+  html += `<div class="val-timeline">${t.milestones.map(m=>`<div class="val-milestone" style="--val-accent:${m.color}"><div class="val-milestone-year">${m.year}</div><div class="val-milestone-tag">${m.tag}</div><div class="val-milestone-body">${m.body}</div></div>`).join('')}</div>`;
+  html += `<div class="val-grid-2" style="margin-top:0.875rem">${t.observations.map(o=>`<div class="val-card val-card--accent" style="--val-accent:${o.accent}"><div class="val-card-tag">${o.tag}</div><div class="val-card-body">${o.body}</div></div>`).join('')}</div>`;
+  html += `<p class="val-lead" style="margin-top:0.875rem;margin-bottom:0">${t.meta.join(' · ')}</p></div>`;
+
+  const p = v.problem;
+  html += `<div class="val-block"><div class="val-label">${p.label}</div><div class="val-card-title">${p.headline}</div><p class="val-lead">${p.sub}</p><ul class="val-card-body">${p.points.map(pt=>`<li>${pt}</li>`).join('')}</ul><p class="val-footer">${p.closing}</p></div>`;
+
+  const g = v.gap;
+  html += `<div class="val-block"><div class="val-label">${g.label}</div><div class="val-card-title">${g.headline}</div><p class="val-lead">${g.sub}</p>`;
+  html += `<div class="val-stack"><div class="val-stack-col"><div class="val-stack-head">Current humanoid stack · mostly present<br><span aria-hidden="true">&nbsp;</span></div>${g.present.map(i=>`<div class="val-stack-item">${i}</div>`).join('')}</div>`;
+  html += `<div class="val-stack-gap">Middleware gap</div>`;
+  html += `<div class="val-stack-col"><div class="val-stack-head">Cognitronics added layer · missing middleware</div>${g.added.map(i=>`<div class="val-stack-item val-stack-item--add">${i}</div>`).join('')}</div></div>`;
+  html += `<p class="val-footer">${g.position}</p></div>`;
+
+  const pr = v.proof;
+  html += `<div class="val-block"><div class="val-label">${pr.label}</div><div class="val-card-title">${pr.headline}</div><p class="val-lead">${pr.sub}</p>`;
+  html += `<div class="val-proof">${pr.phases.map(ph=>`<div class="val-stage" style="--val-accent:${ph.color}"><div class="val-stage-num">${ph.range} · ${ph.title}</div><div class="val-stage-body">${ph.body}</div><div class="val-stage-out">${ph.out}</div></div>`).join('')}</div></div>`;
+
+  html += `</div>`;
+  return html;
+}
+
+function renderTeamPage(data){
+  let html = `<div class="page-section team-groups">`;
+  (data.groups || []).forEach(group => {
+    html += `<div class="team-group-label">${group.label}</div><div class="team-list">`;
+    (group.members || []).forEach(member => { html += renderTeamMember(member); });
+    html += `</div>`;
+  });
+  if(data.footer){
+    html += `<div class="team-footer">${data.footer}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 function openPage(item,folder){
   markActivity();
   ensureItemData(item, folder);
@@ -920,6 +1362,14 @@ function openPage(item,folder){
     html+=`<div class="page-section"><div class="page-section-title">Budget Allocation</div><div class="stat-grid">`;
     data.stats.forEach(([v,l])=>{ html+=`<div class="stat-card"><div class="stat-v">${v}</div><div class="stat-l">${l}</div></div>`; });
     html+=`</div></div>`;
+  }
+
+  if(data.groups){
+    html+=renderTeamPage(data);
+  }
+
+  if(data.validation){
+    html+=renderValidationPage(data.validation);
   }
 
   (data.sections||[]).forEach(s=>{
