@@ -341,6 +341,7 @@ a{color:inherit;text-decoration:none;}
 .val-thesis{font-size:var(--base);color:var(--text);line-height:1.75;font-style:italic;margin-bottom:1rem;}
 .val-lead{font-size:var(--sm);color:var(--text-muted);line-height:1.7;margin-bottom:1rem;}
 .val-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0.875rem;}
+.val-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:0.875rem;}
 .val-card{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
   padding:1.125rem;
@@ -416,7 +417,7 @@ a{color:inherit;text-decoration:none;}
   line-height:1.75;font-style:italic;
 }
 @media(max-width:720px){
-  .val-grid-2,.val-timeline,.val-stack{grid-template-columns:1fr;}
+  .val-grid-2,.val-grid-3,.val-timeline,.val-stack{grid-template-columns:1fr;}
   .val-stack-gap{writing-mode:horizontal-tb;padding:0.5rem 0;text-align:center;}
 }
 
@@ -757,19 +758,6 @@ const PAGES = {
         added:['Cognex structured capture', 'Affordance labels', 'Risk annotations', 'Trajectory constraints', 'Human validation', 'Simulation-ready export'],
         position:'Cognitronics does not replace the manufacturer Mind. The Cognex layer gives it high-quality embodied training data with optimised semantic density per trajectory.',
       },
-      proof:{
-        label:'Eighteen-month proof plan',
-        headline:'The raise funds proof, not scale',
-        sub:'Pre-seed capital buys proof density: working capture, structured datasets, simulation scale-out, benchmark evidence, and a deployable integration path.',
-        phases:[
-          { range:'M0–M3', title:'Capture', body:'Cognex capture prototype — semantic annotation schema, teleoperation capture flow, first structured embodied-learning sessions.', out:'Annotated task corpus', color:'#3b82f6' },
-          { range:'M3–M6', title:'Structure', body:'Turn teleoperation sessions into a structured embodied dataset pipeline. Scene-graph and affordance generation with information retrieval.', out:'Structured dataset pipeline', color:'#39d091' },
-          { range:'M6–M9', title:'Simulate & test', body:'Expand captured trajectories through MuJoCo simulation, domain randomization, and controlled task-variation testing.', out:'Simulation variant set', color:'#e8a838' },
-          { range:'M9–M12', title:'Benchmark', body:'Measure whether structured Cognex data improves task learning, error reduction, and policy robustness vs. baseline training data.', out:'Measured learning delta', color:'#a855f7' },
-          { range:'M12–M15', title:'Deploy', body:'Connect Cognex outputs to robot middleware through ROS2 interfaces, runtime schemas, and deployment-ready policy hooks.', out:'Deployable integration path', color:'#06b6d4' },
-          { range:'M15–M18', title:'Expand', body:'TrustVault context runtime — embodied memory primitives, owner-controlled context, Jetson-based encrypted runtime validation.', out:'TrustVault enclave demo', color:'#f97316' },
-        ],
-      },
     },
   },
   'poc-video': {
@@ -878,42 +866,100 @@ const PAGES = {
   },
   'fundraise-summary': {
     title:'Fundraise Overview',
-    lead:'Pre-Seed SAFE Round · Cognitronics · 2026',
+    lead:'€750K pre-seed SAFE — proof capital for Cognex validation as the semantic capture layer. Rolling close: each tier unlocks a defined proof stage.',
     tiers:[
-      { name:'Tier 1 — Early Commitment', cap:'€6M', discount:'20%', desc:'First €200K · Highest incentive for earliest believers' },
-      { name:'Tier 2 — Core Round',       cap:'€7.5M', discount:'20%', desc:'€200K–€450K · Standard round terms' },
-      { name:'Tier 3 — Final Close',      cap:'€9M', discount:'20%', desc:'€450K–€750K · Closing allocation' },
+      { name:'Tier 1 — Early Commitment', cap:'€6M', desc:'€200K · Capture + structure · €6M cap' },
+      { name:'Tier 2 — Core Round',       cap:'€7.5M', desc:'+€250K (€450K cumulative) · Simulate + benchmark · €7.5M cap' },
+      { name:'Tier 3 — Final Close',      cap:'€9M', desc:'+€300K (€750K cumulative) · Deploy + expand · €9M cap' },
     ],
     summary:{
       title:'Round Summary',
       body:`<p><strong>Round Size:</strong> €750,000</p>
-<p><strong>Instrument:</strong> Post-Money SAFE</p>
+<p><strong>Instrument:</strong> YC Post-Money SAFE</p>
+<p><strong>Structure:</strong> Rolling close — capital converts to evidence at each tier</p>
 <p><strong>Allocation:</strong></p>
 <ul>
-<li>Tier 1 — €200,000 @ €6M cap</li>
-<li>Tier 2 — €250,000 @ €7.5M cap</li>
-<li>Tier 3 — €300,000 @ €9M cap</li>
+<li>Tier 1 — €200,000 @ €6M cap · <em>Capture + structure</em></li>
+<li>Tier 2 — €250,000 @ €7.5M cap · <em>Simulate + benchmark</em> (€450K cumulative)</li>
+<li>Tier 3 — €300,000 @ €9M cap · <em>Deploy + expand</em> (€750K cumulative)</li>
 </ul>
-<p><strong>Purpose:</strong> Build Cognex, TrustVault, simulation infrastructure, and secure strategic robotics partnerships.</p>`,
+<p><strong>Purpose:</strong> Validate Cognex as the semantic capture layer — structured embodied datasets, simulation scale-out, benchmark evidence, ROS2 integration path, and TrustVault prototype.</p>
+<p><strong>Proof package:</strong> 12–18 months · seed-ready investor / OEM package</p>
+<p><strong>Target Seed:</strong> €20–50M post-validation, contingent on measured learning delta, ROS2 integration, and OEM/lab validation pipeline.</p>`,
     },
     sections:[
-      { title:'Use of Proceeds', body:`<p>The €750K pre-seed SAFE finances the development of the Cognex semantic capture layer, simulation amplification infrastructure, TrustVault runtime, core engineering hires, compute and robotics infrastructure, and preparation for strategic manufacturer partnerships and the future Seed round.</p>` },
-      { title:'Conversion Terms', body:`<p>All SAFEs use the YC Post-Money SAFE structure and convert at the lower of the valuation cap or a 20% discount to the next priced equity round. Pro-rata participation rights may be granted via side letter at the company's discretion.</p>` },
+      { title:'Use of Proceeds', body:`<p>The round is structured so capital becomes evidence immediately: capture, structure, simulate, benchmark, deploy, and expand. Each tier maps to a tranche with defined outputs — from working Cognex capture prototype through measured learning delta to a seed-ready proof package.</p><p>See <strong>Use of Funds</strong> (Financials) for tranche detail, proof outputs, and the eighteen-month execution plan.</p>` },
+      { title:'Conversion Terms', body:`<p>All SAFEs use the YC Post-Money SAFE structure with valuation caps only — no discount. Each converts at its post-money valuation cap in the next priced equity round. Pro-rata participation rights may be granted via side letter at the company's discretion.</p>` },
     ]
   },
   'use-of-funds': {
     title:'Use of Funds',
-    lead:'How the €500K pre-seed capital will be deployed over 18 months.',
-    stats:[
-      ['45%','Engineering (2 hires)'],
-      ['20%','Infrastructure & Cloud'],
-      ['20%','Go-to-Market & Pilots'],
-      ['10%','Legal & Compliance'],
-      ['5%', 'Operations'],
-    ],
-    sections:[
-      { title:'Milestones Funded', body:`<p>This capital is designed to reach Series A-ready milestones: 10 signed enterprise pilots, €200K ARR, production-ready v1 of the Cognitronics platform, and a defensible technical moat validated by 3rd-party review.</p>` },
-    ]
+    lead:'€750K pre-seed SAFE — proof capital for Cognex validation as the semantic capture layer. Each tranche unlocks a defined proof stage.',
+    useOfFunds:{
+      framing:'The round is structured so capital becomes evidence immediately: first capture, then structure, then simulate, benchmark, deploy, and expand as per plan.',
+      tranches:[
+        {
+          amount:'€200K',
+          cumulative:'Tranche 1',
+          label:'Capture + structure',
+          color:'#39d091',
+          items:[
+            'Live semantic annotation prototype',
+            'Teleoperation → structured embodied dataset pipeline',
+            'PoC refinement + demo assets',
+          ],
+          output:'Working Cognex capture prototype',
+        },
+        {
+          amount:'+€250K',
+          cumulative:'€450K cumulative',
+          label:'Simulate + benchmark',
+          color:'#e8a838',
+          items:[
+            'Scene-graph and affordance generation',
+            'MuJoCo simulation + domain randomization',
+            'Simulated policy scaling benchmark',
+          ],
+          output:'Measured learning delta',
+        },
+        {
+          amount:'+€300K',
+          cumulative:'€750K cumulative',
+          label:'Deploy + expand',
+          color:'#a855f7',
+          items:[
+            'ROS2 integration layer development',
+            'OEM / lab validation conversations (partnerships)',
+            'TrustVault context-runtime prototype + Jetson enclave preps',
+          ],
+          output:'Seed-ready proof package',
+        },
+      ],
+      outputs:[
+        'Live semantic annotation prototype',
+        'Structured embodied dataset pipeline',
+        'Scene-graph + affordance generation demo',
+        'Domain randomization / MuJoCo simulation framework',
+        'Simulated policy scaling benchmark',
+        'ROS2 integration path on actual hardware (humanoids)',
+        'TrustVault context-runtime prototype',
+        'Seed-ready investor / OEM package',
+      ],
+      proof:{
+        label:'Eighteen-month proof plan',
+        headline:'The raise funds proof, not scale',
+        sub:'Pre-seed capital buys proof density: working capture, structured datasets, simulation scale-out, benchmark evidence, and a deployable integration path.',
+        phases:[
+          { range:'M0–M3', title:'Capture', body:'Cognex capture prototype — semantic annotation schema, teleoperation capture flow, first structured embodied-learning sessions.', out:'Annotated task corpus', color:'#3b82f6' },
+          { range:'M3–M6', title:'Structure', body:'Turn teleoperation sessions into a structured embodied dataset pipeline. Scene-graph and affordance generation with information retrieval.', out:'Structured dataset pipeline', color:'#39d091' },
+          { range:'M6–M9', title:'Simulate & test', body:'Expand captured trajectories through MuJoCo simulation, domain randomization, and controlled task-variation testing.', out:'Simulation variant set', color:'#e8a838' },
+          { range:'M9–M12', title:'Benchmark', body:'Measure whether structured Cognex data improves task learning, error reduction, and policy robustness vs. baseline training data.', out:'Measured learning delta', color:'#a855f7' },
+          { range:'M12–M15', title:'Deploy', body:'Connect Cognex outputs to robot middleware through ROS2 interfaces, runtime schemas, and deployment-ready policy hooks.', out:'Deployable integration path', color:'#06b6d4' },
+          { range:'M15–M18', title:'Expand', body:'TrustVault context runtime — embodied memory primitives, owner-controlled context, Jetson-based encrypted runtime validation.', out:'TrustVault enclave demo', color:'#f97316' },
+        ],
+      },
+      closing:'Target Seed: €20–50M post-validation, contingent on measured learning delta, ROS2 integration, and OEM/lab validation pipeline.',
+    },
   },
 };
 
@@ -1310,10 +1356,45 @@ function renderValidationPage(v){
   html += `<div class="val-stack-col"><div class="val-stack-head">Cognitronics added layer · missing middleware</div>${g.added.map(i=>`<div class="val-stack-item val-stack-item--add">${i}</div>`).join('')}</div></div>`;
   html += `<p class="val-footer">${g.position}</p></div>`;
 
-  const pr = v.proof;
-  html += `<div class="val-block"><div class="val-label">${pr.label}</div><div class="val-card-title">${pr.headline}</div><p class="val-lead">${pr.sub}</p>`;
-  html += `<div class="val-proof">${pr.phases.map(ph=>`<div class="val-stage" style="--val-accent:${ph.color}"><div class="val-stage-num">${ph.range} · ${ph.title}</div><div class="val-stage-body">${ph.body}</div><div class="val-stage-out">${ph.out}</div></div>`).join('')}</div></div>`;
+  html += `</div>`;
+  return html;
+}
 
+function renderProofPlan(pr){
+  return `
+    <div class="val-block">
+      <div class="val-label">${pr.label}</div>
+      <div class="val-card-title">${pr.headline}</div>
+      <p class="val-lead">${pr.sub}</p>
+      <div class="val-proof">${pr.phases.map(ph=>`
+        <div class="val-stage" style="--val-accent:${ph.color}">
+          <div class="val-stage-num">${ph.range} · ${ph.title}</div>
+          <div class="val-stage-body">${ph.body}</div>
+          <div class="val-stage-out">${ph.out}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderUseOfFundsPage(u){
+  let html = `<div class="page-section val-wrap">`;
+  html += `<p class="val-thesis">${u.framing}</p>`;
+
+  html += `<div class="val-block"><div class="val-label">Rolling tranches</div><div class="val-grid-3">`;
+  html += u.tranches.map(t=>`
+    <div class="val-card val-card--accent" style="--val-accent:${t.color}">
+      <div class="val-card-tag">${t.cumulative} · ${t.label}</div>
+      <div class="val-card-title">${t.amount}</div>
+      <ul class="val-card-body">${t.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+      <div class="val-stage-out" style="margin-top:0.75rem;color:var(--val-accent,${t.color})">Output: ${t.output}</div>
+    </div>`).join('');
+  html += `</div></div>`;
+
+  html += `<div class="val-block"><div class="val-label">Proof outputs · 12–18 months</div><ul class="val-card-body">${u.outputs.map(o=>`<li>${o}</li>`).join('')}</ul></div>`;
+
+  html += renderProofPlan(u.proof);
+
+  if(u.closing) html += `<p class="val-footer">${u.closing}</p>`;
   html += `</div>`;
   return html;
 }
@@ -1349,7 +1430,7 @@ function openPage(item,folder){
   if(data.tiers){
     html+=`<div class="page-section"><div class="page-section-title">SAFE Tiers</div><div class="safe-tiers">`;
     data.tiers.forEach(t=>{
-      html+=`<div class="safe-tier"><div><div class="safe-tier-name">${t.name}</div><div class="safe-tier-desc">${t.desc}</div></div><div class="safe-tier-cap">${t.cap} cap · ${t.discount} discount</div></div>`;
+      html+=`<div class="safe-tier"><div><div class="safe-tier-name">${t.name}</div><div class="safe-tier-desc">${t.desc}</div></div><div class="safe-tier-cap">${t.cap} post-money cap</div></div>`;
     });
     html+=`</div></div>`;
   }
@@ -1370,6 +1451,10 @@ function openPage(item,folder){
 
   if(data.validation){
     html+=renderValidationPage(data.validation);
+  }
+
+  if(data.useOfFunds){
+    html+=renderUseOfFundsPage(data.useOfFunds);
   }
 
   (data.sections||[]).forEach(s=>{
