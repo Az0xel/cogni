@@ -1,7 +1,7 @@
 Drop PDFs in this folder. Filenames must match data_room/index.html (or update index.html).
 
 Business
-  [ ] executive-summary.pdf
+  [x] executive-summary.pdf
 
 Corporate
   [x] certificate-of-incorporation.pdf
