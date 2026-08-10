@@ -7,7 +7,7 @@ Corporate
   [x] certificate-of-incorporation.pdf
   [x] bylaws.pdf
   [ ] cap-table.pdf
-  [ ] board-resolution-safe.pdf
+  [x] board-resolution-safe.pdf
   [ ] founder-rsa.pdf
   [ ] ip-assignment.pdf
 
