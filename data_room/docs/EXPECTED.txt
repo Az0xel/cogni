@@ -17,4 +17,4 @@ Fundraise
   [x] Cognitronics-SAFE-T3.pdf
 
 Financials
-  [ ] financial-model.pdf
+  [x] financial-model.pdf
