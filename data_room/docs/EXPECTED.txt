@@ -4,7 +4,7 @@ Business
   [ ] executive-summary.pdf
 
 Corporate
-  [ ] certificate-incorporation.pdf
+  [x] certificate-of-incorporation.pdf
   [ ] bylaws.pdf
   [ ] cap-table.pdf
   [ ] board-resolution-safe.pdf
