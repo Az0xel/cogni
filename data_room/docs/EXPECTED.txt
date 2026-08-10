@@ -9,7 +9,7 @@ Corporate
   [ ] cap-table.pdf
   [x] board-resolution-safe.pdf
   [x] founder-rsa.pdf
-  [ ] ip-assignment.pdf
+  [x] ip-assignment.pdf
 
 Fundraise
   [x] Cognitronics-SAFE-T1.pdf
