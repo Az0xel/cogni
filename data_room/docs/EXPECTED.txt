@@ -17,6 +17,6 @@ Fundraise
   [x] Cognitronics-SAFE-T3.pdf
 
 Financials
-  [x] financial-model.pdf
+  [x] Cognitronics_Financial_Model_Detail.pdf
   [x] COGNICS SYSTEMS - Financial docs.xlsx
   [x] Google Sheets workbook (link in index.html)
