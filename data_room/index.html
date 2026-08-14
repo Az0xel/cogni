@@ -663,7 +663,7 @@ const FOLDERS = [
     items:[
       { id:'cert-incorp',   name:'Certificate of Incorporation', kind:'pdf', meta:'PDF · 165 KB', url:'docs/certificate-of-incorporation.pdf' },
       { id:'bylaws',        name:'Bylaws',                       kind:'pdf', meta:'PDF · 143 KB', url:'docs/bylaws.pdf' },
-      { id:'cap-table',     name:'Cap Table (Fully Diluted)',     kind:'pdf', meta:'PDF · 2.8 MB',  url:'docs/cap-table.pdf' },
+      { id:'cap-table',     name:'Cap Table (Fully Diluted)',     kind:'pdf', meta:'PDF · 334 KB',  url:'docs/cap-table.pdf' },
       { id:'board-res',     name:'Board Resolution — SAFE',      kind:'pdf', meta:'PDF · 108 KB', url:'docs/board-resolution-safe.pdf' },
       { id:'founder-rsa',   name:'Founder RSA',                  kind:'pdf', meta:'PDF · 603 KB', url:'docs/founder-rsa.pdf' },
       { id:'ip-assignment', name:'IP Assignment Agreement',      kind:'pdf', meta:'PDF · 903 KB', url:'docs/ip-assignment.pdf' },
@@ -685,8 +685,10 @@ const FOLDERS = [
     color:'#ec4899', bg:'rgba(236,72,153,0.1)',
     icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
     items:[
-      { id:'use-of-funds',    name:'Use of Funds',              kind:'page', meta:'Interactive page',  pageId:'use-of-funds' },
-      { id:'financial-model', name:'Financial Model (18–24mo)', kind:'pdf',  meta:'PDF · 631 KB',      url:'docs/financial-model.pdf' },
+      { id:'use-of-funds',           name:'Use of Funds',                        kind:'page', meta:'Interactive page',       pageId:'use-of-funds' },
+      { id:'financial-model',        name:'Financial Model — Summary',           kind:'pdf',  meta:'PDF · 631 KB',           url:'docs/financial-model.pdf' },
+      { id:'financial-model-sheets', name:'Financial Model — Workbook (Sheets)', kind:'link', meta:'Google Sheets · read-only', url:'https://docs.google.com/spreadsheets/d/1SuqC8WI_HWieST059RYb-VyJ5pb3O99ZlawzB7FjF2U/preview' },
+      { id:'financial-model-xlsx',   name:'Financial Model — Workbook (Excel)',  kind:'xlsx', meta:'XLSX · 87 KB',           url:'docs/COGNICS%20SYSTEMS%20-%20Financial%20docs.xlsx' },
     ]
   },
 ];
@@ -1209,6 +1211,8 @@ function openFolder(folder){
       ? `<span class="page-badge">PAGE</span>`
       : item.kind==='link'
       ? `<span class="page-badge">LINK</span>`
+      : item.kind==='xlsx'
+      ? `<span class="type-badge">XLSX</span>`
       : `<span class="type-badge">PDF</span>`;
     row.innerHTML=`
       <div class="doc-icon" style="background:${folder.bg}">${itemIcon(item,folder.color)}</div>

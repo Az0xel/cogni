@@ -18,3 +18,5 @@ Fundraise
 
 Financials
   [x] financial-model.pdf
+  [x] COGNICS SYSTEMS - Financial docs.xlsx
+  [x] Google Sheets workbook (link in index.html)
